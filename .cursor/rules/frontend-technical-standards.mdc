@@ -1,0 +1,76 @@
+---
+description: Technical standards for frontend development
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Frontend Development Standards (Budget Duo)
+
+## Component Architecture
+
+- Use functional components with hooks.
+- Keep components focused on specific responsibilities (SRP).
+- Use TypeScript for all components; define props with interfaces or type aliases.
+- Reusable UI belongs in `components/ui/`. Feature-specific UI can live close to its feature.
+- Pages live under Next.js App Router `app/`.
+
+## State Management
+
+- Prefer server-rendered data with Next.js App Router when possible.
+- For client data fetching/caching, you may use Apollo Client or SWR as needed; colocate queries with components or under `graphql/` by feature.
+- Use React Context only for true cross-cutting UI state.
+- Always show loading and error states for async operations.
+
+## GraphQL Integration
+
+- Place SDL under `graphql/schema/` by domain (`<domain>/{types,enums,inputs}`) with root `query.graphql`, `mutation.graphql`, `scalar.graphql`.
+- Implement resolvers per file under `graphql/queries/<domain>/` and `graphql/mutations/<domain>/` (one resolver per file).
+- Add type resolvers under `graphql/types/<domain>/index.ts` and scalars under `graphql/types/scalars/`.
+- Use GraphQL Code Generator (`codegen.ts`) and generated types in resolvers.
+
+## Styling
+
+- Use Tailwind CSS (`tailwind.config.ts`).
+- Global styles in `app/globals.css`.
+- For complex component styling, prefer Tailwind + small CSS modules when needed.
+- Ensure responsive design and basic accessibility (labels, semantics, focus states).
+
+## Performance
+
+- Memoize expensive subtrees (`React.memo`, `useMemo`, `useCallback`).
+- Split large routes and components with Next.js dynamic imports if needed.
+- Avoid unnecessary client components; prefer server components where possible.
+
+## File Structure and Naming
+
+- `.tsx` for React components; `.ts` for utilities/types.
+- Group by feature where it improves cohesion.
+- Common directories:
+  - `app/` (routes, layouts, pages)
+  - `components/` and `components/ui/`
+  - `graphql/` (SDL, resolvers, types)
+  - `db/` (typed collection access)
+  - `types/` (domain types)
+  - `lib/` (shared libs: auth, mongodb, dayjs)
+- Use `PascalCase` for components, `camelCase` for variables/functions, `kebab-case` for folders.
+
+## Testing
+
+- Co-locate tests (`*.test.ts` / `*.test.tsx`) near the unit under test.
+- Use React Testing Library for components.
+- Mock network via MSW where appropriate.
+
+## Build & Tooling
+
+- Framework: Next.js (App Router). No Vite.
+- GraphQL endpoint served via Next route handler at `app/api/graphql/route.ts` using Apollo Server.
+- ESLint configured in `eslint.config.mjs`; add `npm run lint:fix` to auto-fix.
+- Prettier used for formatting.
+- GraphQL Code Generator configured in `codegen.ts`.
+
+## Do/Don’t
+
+- Do keep resolvers thin; push complex logic into repositories/services.
+- Do keep types in `types/` and collections typed in `db/<domain>/`.
+- Don’t bypass typed collections when accessing MongoDB.
+- Don’t couple UI components to data access; pass typed data via props.

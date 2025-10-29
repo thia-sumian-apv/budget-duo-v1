@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Keep turbopack; no change needed for GraphQL route
+  },
 };
 
 export default nextConfig;

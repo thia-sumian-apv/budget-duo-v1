@@ -1,0 +1,90 @@
+---
+description: Project overview for Budget Duo
+globs:
+alwaysApply: true
+---
+
+# Budget Duo Overview
+
+## Product Description
+
+Budget Duo helps couples plan and track finances with CPF awareness. The app focuses on two pillars:
+
+1. Planning CPF-aware budgets and goals
+
+- Capture income, age, and goals (shared or individual; monthly or time‑bound; CPF‑eligible or not)
+- Choose a contribution split: custom percentages or automatic split by take‑home income
+- See per‑person allocations, CPF coverage versus take‑home excess, and remaining take‑home
+
+2. Tracking accounts and net worth over time
+
+- Maintain a catalog of bank, CPF, and investment accounts per person
+- Record monthly balances and visualize trends
+- View latest totals for savings, investments, CPF, and combined net worth
+
+## Core Calculation Logic
+
+- Monthly contribution for a goal
+  - If category = monthly, contribution = amount
+  - If category = goal (time‑bound), contribution = amount ÷ duration
+
+- Ratio selection for shared goals
+  - Custom split: user‑entered percentages
+  - Income‑based: your take‑home ÷ (your take‑home + partner take‑home)
+
+- CPF calculation and ceilings
+  - Employee CPF is age‑dependent and capped by the Ordinary Wage ceiling
+  - Take‑home = salary − employee CPF
+  - CPF allocations across OA/SA/MA vary by age
+
+- CPF coverage vs take‑home excess (for CPF‑eligible goals)
+  - Compute each person’s total CPF‑eligible expense load based on chosen ratios
+  - For each person: Covered = min(load, monthly OA); Excess = max(0, load − monthly OA)
+  - Shared goals: apportion the goal by each person’s share of total CPF‑eligible expenses before comparing with available CPF
+
+- Final budget summary
+  - Per person: total take‑home allocations = non‑CPF goals + CPF‑eligible excess
+  - Remaining take‑home = take‑home − total allocations
+  - Combined figures sum across both people
+
+## Technical Architecture
+
+- Next.js App Router (single app)
+- Apollo Server in a route handler at `/api/graphql`
+- MongoDB (typed access via small repositories)
+- GraphQL SDL merged at runtime; type‑safe resolvers via GraphQL Codegen
+- NextAuth for OAuth and session handling
+
+## Data and Typing Conventions
+
+- Documents (examples):
+  - User: minimal identity fields plus role and OAuth provider metadata
+  - Goal: owner/shared, category (monthly/goal), amount/duration, CPF‑eligible flag
+  - Ratio settings: custom percentages or income‑based
+  - CPF summary: per‑person rates, OA/SA/MA breakdown, take‑home
+  - Accounts and monthly entries: per‑person balances per account
+- Repositories: expose typed Mongo collections per domain (e.g., `users`, `goals`)
+- GraphQL:
+  - SDL organized by domain with root `query`, `mutation`, `scalar`
+  - Scalars: `ObjectID` (maps to Mongo `ObjectId`), `DateTime`
+  - Unions for mutation responses (success | error) to keep errors explicit and structured
+  - Codegen maps GraphQL types/enums/scalars to TS document types and enums
+
+## Behavior and UX Principles
+
+- Keep inputs simple and outcomes obvious; show how splits and CPF affect real take‑home
+- Default to sensible ratios (income‑based) but allow custom overrides
+- When tracking cashflow, keep per‑person data independent and easy to update
+- Provide clear reset options (remove user inputs and tracked balances)
+
+## Non‑Goals
+
+- No multi‑tenant or complex RBAC
+- No heavy background job system by default
+- Avoid premature microservices or federation; keep a single‑app, typed, and testable architecture
+
+## Development Guardrails
+
+- One resolver per file; push non‑trivial logic into services/repositories
+- Type everything end‑to‑end (SDL → codegen → resolvers → repositories)
+- Prefer additive schema evolution and maintain clear domain boundaries

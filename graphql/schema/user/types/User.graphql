@@ -1,0 +1,14 @@
+"""
+User object returned by authentication and used across the app.
+"""
+type User {
+  id: ObjectID!
+  email: String!
+  name: String
+  image: String
+  role: Role!
+  provider: String
+  providerAccountId: String
+  createdAt: String
+  updatedAt: String
+}

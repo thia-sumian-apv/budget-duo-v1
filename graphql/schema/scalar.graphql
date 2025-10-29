@@ -1,0 +1,13 @@
+"""
+ObjectID
+
+GraphQL ID-Type for MongoDB ID
+"""
+scalar ObjectID
+
+"""
+DateTime
+
+GraphQL DateTime-Type for Dates
+"""
+scalar DateTime

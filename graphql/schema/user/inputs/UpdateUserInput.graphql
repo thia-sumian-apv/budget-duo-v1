@@ -1,0 +1,5 @@
+input UpdateUserInput {
+  name: String
+  image: String
+  role: Role
+}

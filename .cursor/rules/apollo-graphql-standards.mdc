@@ -1,0 +1,95 @@
+---
+description: GraphQL and Apollo implementation standards (Budget Duo)
+globs: "**/graphql/**,**/*.graphql,**/*.apollo.ts"
+alwaysApply: false
+---
+
+# Apollo/GraphQL Implementation Standards (Budget Duo)
+
+## Schema Organization
+
+- Organize SDL under `graphql/schema/` by domain: `<domain>/{types,inputs,enums}` plus root `query.graphql`, `mutation.graphql`, `scalar.graphql`.
+- Use descriptive triple-quoted docs for types/fields. Keep breaking changes to a minimum (prefer additive changes).
+
+## Naming Conventions
+
+- Types: PascalCase singular nouns (e.g., `User`, `Organization`, `AssessmentResult`).
+- Queries: camelCase, descriptive verbs, often prefixed with `get` or `list` (e.g., `getUserById`, `listOrganizations`, `searchAssessments`).
+- Mutations: camelCase, action verbs, often prefixed with `create`, `update`, `delete` (e.g., `createUser`, `updateOrganizationSettings`, `deleteAssessment`).
+- Input types: PascalCase with `Input` suffix (e.g., `CreateUserInput`, `AssessmentFilterInput`).
+- Enums: PascalCase (e.g., `UserRole`, `AssessmentStatus`, `SubscriptionTier`).
+- Fields: camelCase (e.g., `firstName`, `emailAddress`, `lastLoggedInAt`).
+- Arguments: camelCase (e.g., `userId`, `filter`, `pagination`).
+
+## Error Handling
+
+- Define consistent error codes and a standardized error response structure. Ensure error objects include a unique, stable `extensions.code` (e.g., `VALIDATION_ERROR`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `INTERNAL_SERVER_ERROR`) for programmatic client-side handling.
+  ```graphql
+  # Example Error Response Structure
+  # {
+  #   "errors": [
+  #     {
+  #       "message": "User not found.",
+  #       "locations": [{ "line": 2, "column": 3 }],
+  #       "path": ["user"],
+  #       "extensions": {
+  #         "code": "NOT_FOUND",
+  #         "timestamp": "2023-10-27T10:30:00Z"
+  #       }
+  #     }
+  #   ]
+  # }
+  ```
+- Implement error extensions to provide additional, non-sensitive context.
+- Keep server-friendly messages; optionally normalize via Apollo `formatError`.
+- Categorize errors clearly (e.g., Input Validation, Authentication, Authorization, Resource Not Found, External Service Error, Internal Server Error).
+- While GraphQL typically returns a 200 OK status with errors detailed in the `errors` array of the response, specific critical errors (e.g., authentication failure) can be mapped to appropriate HTTP status codes (e.g., 401). This can be achieved using plugins like `apollo-server-plugin-http-response-extensions` or custom `formatError` logic. The default remains 200 for most GraphQL operational errors.
+- Log detailed error information on the server-side (including stack traces and request context via Sentry and structured logging), but return user-friendly, non-technical messages to clients.
+
+## Performance Guidelines
+
+- Implement query complexity analysis (e.g., using `graphql-query-complexity`) to prevent overly expensive queries.
+- Set reasonable depth limits for nested queries (typically 5-7 levels, adjustable based on specific needs).
+- Use cursor-based pagination for all lists to ensure stable and efficient data fetching. Relay-style connections are preferred.
+  ```graphql
+  # Example Relay-style Connection
+  # type UserConnection {
+  #   edges: [UserEdge!]!
+  #   pageInfo: PageInfo!
+  #   totalCount: Int!
+  # }
+  ```
+- Add explicit limits (e.g., `first: Int`, `last: Int` arguments) with sensible defaults and maximums to prevent excessive data fetching.
+- Consider simple in-memory caching for small lookups; prefer DataLoader for N+1.
+- Monitor slow queries using Apollo Studio, Sentry APM, or other monitoring tools and optimize as needed.
+- Leverage DataLoaders extensively (as detailed in `backend-technical-standards.mdc` and utilized in `new-object-framework.mdc`) to prevent N+1 query problems, especially for resolving nested relationships.
+
+## Client-side
+
+- Co-locate queries/mutations with components or group by feature. Use generated types for safety.
+
+## Type Generation
+
+- Use `codegen.ts` to generate resolver types. Map GraphQL → TS:
+  - `mappers`: GraphQL types to Mongo documents
+  - `enumValues`: GraphQL enums to TS enums
+  - `scalars`: e.g., `ObjectID → mongodb#ObjectId`, `DateTime → string`
+- Re-run `npm run codegen` whenever SDL changes.
+
+## Schema Design Principles
+
+- Design the schema from the client's perspective: model data based on how UIs will consume it.
+- Follow the principle of least privilege: ensure queries and mutations only expose necessary data and actions.
+- Introduce interfaces/unions only when needed.
+- Implement GraphQL unions or interfaces for heterogeneous lists or search results.
+- Prefer nullable fields by default unless a field is truly always present and required. Clearly document why a field is non-nullable.
+- Define explicit relationships between types. For example, if a `User` has many `Posts`, this should be clearly queryable.
+- Document all public-facing APIs (queries, mutations, types, fields, arguments) thoroughly using GraphQL descriptions.
+- Plan for schema evolution:
+  - Add new fields as nullable initially unless they have a sensible default or are required for all new entities.
+  - Avoid removing or renaming fields directly as this is a breaking change. Instead, use the `@deprecated(reason: "...")` directive for fields/types planned for removal, providing a migration path if possible.
+  - Introduce new versions of input/output types or mutations for significant breaking changes if necessary.
+
+## Route Handler
+
+- Serve Apollo via `app/api/graphql/route.ts` with landing page enabled in development and `introspection` disabled in production.

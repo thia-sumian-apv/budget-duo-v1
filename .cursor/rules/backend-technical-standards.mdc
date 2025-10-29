@@ -1,0 +1,75 @@
+---
+description: Technical standards for backend development (Budget Duo)
+globs: "**/*.{ts,js}"
+alwaysApply: false
+---
+
+# Backend Development Standards (Budget Duo)
+
+Note: Our backend is a single Next.js app. The primary API is GraphQL served via an App Router route handler. For GraphQL specifics, see `apollo-graphql-standards.mdc`.
+
+## HTTP API Design
+
+- Prefer GraphQL. If REST/webhooks are needed, use clear resource naming and proper HTTP methods/status codes.
+- Keep REST handlers minimal; place them under `app/api/<route>/route.ts`.
+
+## GraphQL Architecture
+
+- SDL lives in `graphql/schema/` by domain (`<domain>/{types,inputs,enums}`) with roots `query.graphql`, `mutation.graphql`, `scalar.graphql`.
+- Executable schema is created in `graphql/schema.ts` (merged SDL) and served from `app/api/graphql/route.ts`.
+- Keep resolvers thin; one file per resolver under `graphql/queries/<domain>` and `graphql/mutations/<domain>`.
+- Use type resolvers under `graphql/types/<domain>` (map `_id` → `id`, serialize dates) and scalars under `graphql/types/scalars`.
+- Standardize error shapes via union payloads (e.g., `CreateXResponse = CreateXSuccessfulResponse | ErrorResponse`).
+
+## Business Logic Layer
+
+- Keep resolvers orchestration-only; push non-trivial logic into small services under `services/<domain>/` when it grows.
+- Validate inputs close to the edge (basic checks in resolvers) and deeper via service-level validation (e.g., Zod) where complexity warrants it.
+
+## Data Access
+
+- Primary database: MongoDB. Connection via `lib/mongodb.ts`.
+- Use typed repositories in `db/<domain>/getCollections.ts` to access collections (e.g., return `{ users: Collection<UserDocument> }`).
+- Define document interfaces/enums in `types/<domain>/*.ts` and reuse across app/resolvers.
+- Add indexes in Atlas when needed (e.g., unique email). Use projections and limits for performance.
+
+## Background Jobs
+
+- Not standard in this app. If needed later, document job runner choice and patterns explicitly.
+
+## Authentication & Authorization
+
+- Auth is handled by NextAuth (see `lib/auth.ts`).
+- Use session/user context in resolvers. Add simple role checks where appropriate.
+- Follow OWASP best practices for session handling and input validation.
+
+## Performance
+
+- Add appropriate indexes and projections. Use `limit` and pagination.
+- Consider DataLoader for N+1 hotspots when relationships emerge.
+- Measure slow operations and optimize queries.
+
+## Error Handling and Logging
+
+- In GraphQL, prefer union payloads for domain errors; for unexpected errors, let Apollo surface `errors[]`.
+- Log server-side errors with context. Integrate Sentry if needed.
+
+## Security and Access Control
+
+- Implement robust authentication mechanisms (JWT as mentioned).
+- Follow security best practices (OWASP Top 10, secure coding principles).
+- Use environment variables for all sensitive data (API keys, database credentials, secrets) – never hardcode them. See Environment Configuration section.
+- Implement proper CORS (Cross-Origin Resource Sharing) policies.
+- Set appropriate security headers (e.g., `Content-Security-Policy`, `X-Content-Type-Options`, `Strict-Transport-Security`).
+- Validate and sanitize all user inputs rigorously at multiple layers (client-side, API gateway, service layer) to prevent injection attacks (XSS, SQLi/NoSQLi, etc.).
+- Prevent common security vulnerabilities through regular code reviews, security testing, and dependency vulnerability scanning.
+
+## Environment Configuration
+
+- Store secrets in env vars. Provide `.env.example` with required keys (Mongo URI, NextAuth secrets, OAuth client IDs).
+- Never commit real secrets.
+
+## Testing
+
+- Co-locate unit tests next to modules. Use integration tests for resolvers hitting a test MongoDB.
+- Mock external services in unit tests. Aim to cover critical paths.

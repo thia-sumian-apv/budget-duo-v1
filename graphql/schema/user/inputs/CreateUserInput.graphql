@@ -1,0 +1,6 @@
+input CreateUserInput {
+  email: String!
+  name: String
+  image: String
+  role: Role
+}

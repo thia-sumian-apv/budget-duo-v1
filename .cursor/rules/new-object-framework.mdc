@@ -1,0 +1,236 @@
+---
+alwaysApply: true
+---
+
+Here’s a Cursor rule you can drop in, generalized for Budget Duo (Next.js + Apollo in route handler, single app, MongoDB, no CASL/migrations packages). It mirrors NeuroVibes’ structure but removes monorepo- and CASL-specific parts to avoid confusion.
+
+---
+
+description: Creating new objects and features (Budget Duo)
+globs: "\*_/_.{ts,tsx,js,jsx,graphql}"
+alwaysApply: false
+
+---
+
+### Purpose
+
+Define a clear, consistent process for adding new domain objects and features in this app, aligned with our current stack:
+
+- Next.js (App Router)
+- Apollo Server in route handler
+- MongoDB
+- GraphQL SDL files merged at runtime
+- GraphQL Codegen for type-safe resolvers
+- NextAuth for auth
+
+## 0. Plan and choose locations
+
+- Keep everything inside the app; no workspace packages required.
+- Use this structure for each domain (example: user):
+  - Domain types: `types/<domain>/<name>.ts`
+  - DB collections/repository: `db/<domain>/getCollections.ts` (typed collections)
+  - GraphQL SDL (by domain): `graphql/schema/<domain>/{enums,inputs,types}/*.graphql`
+  - Root GraphQL: `graphql/schema/{query.graphql,mutation.graphql,scalar.graphql}`
+  - GraphQL resolvers:
+    - Queries: `graphql/queries/<domain>/*.ts` (one file per query)
+    - Mutations: `graphql/mutations/<domain>/*.ts` (one file per mutation)
+    - Type resolvers: `graphql/types/<domain>/index.ts`
+    - Scalars (shared): `graphql/types/scalars/*.ts`
+  - Optional domain services (if logic grows): `services/<domain>/*.ts`
+
+## 1. Data model (TypeScript)
+
+- Define the MongoDB document and enums under `types/<domain>/`.
+- Example (`types/users/user.ts`):
+
+```ts
+import type { ObjectId } from "mongodb";
+
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+}
+
+export interface UserDocument {
+  _id: ObjectId;
+  email: string;
+  name?: string | null;
+  image?: string | null;
+  role: Role;
+  provider?: string | null;
+  providerAccountId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## 2. Typed collections (Repository)
+
+- Create a minimal repository to expose typed collections:
+
+```ts
+// db/users/getCollections.ts
+import type { Collection } from "mongodb";
+import clientPromise from "@/lib/mongodb";
+import type { UserDocument } from "@/types/users/user";
+
+export interface UserCollections {
+  users: Collection<UserDocument>;
+}
+
+const getUserCollections = async (): Promise<UserCollections> => {
+  const client = await clientPromise;
+  const db = client.db();
+  return { users: db.collection<UserDocument>("users") };
+};
+
+export default getUserCollections;
+```
+
+## 3. GraphQL SDL (Schema)
+
+- Organize SDL by domain: `graphql/schema/<domain>/{types,enums,inputs}/*.graphql`
+- Root SDL: `graphql/schema/{query.graphql,mutation.graphql,scalar.graphql}`
+- Scalars:
+  - Define `scalar ObjectID` and `scalar DateTime` in `graphql/schema/scalar.graphql`.
+- Example domain type (`graphql/schema/user/types/User.graphql`):
+
+```graphql
+"""
+User object returned by authentication and used across the app.
+"""
+type User {
+  id: ObjectID!
+  email: String!
+  name: String
+  image: String
+  role: Role!
+  provider: String
+  providerAccountId: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+```
+
+- Root queries/mutations (`graphql/schema/query.graphql`, `graphql/schema/mutation.graphql`):
+
+```graphql
+type Query {
+  getUser(id: ObjectID!): User
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserResponse!
+  updateUser(id: ObjectID!, input: UpdateUserInput!): UpdateUserResponse!
+  deleteUser(id: ObjectID!): Boolean!
+}
+```
+
+## 4. GraphQL resolvers
+
+- Use one file per resolver (SRP) and keep them thin (call repository/services).
+- Type resolvers (map DB fields to GraphQL fields) in `graphql/types/<domain>/index.ts`:
+  - Map `_id` to `id`
+  - Convert Date to string (or keep DateTime scalar if you add it)
+- Scalars: implement `ObjectID` at `graphql/types/scalars/ObjectID.ts` and export via `graphql/types/index.ts`.
+- Example `ObjectID`:
+
+```ts
+// graphql/types/scalars/ObjectID.ts
+import { GraphQLScalarType, Kind, GraphQLError } from "graphql";
+import { ObjectId } from "mongodb";
+
+const re = /^[a-fA-F0-9]{24}$/;
+
+export default new GraphQLScalarType<ObjectId, string>({
+  name: "ObjectID",
+  description: "MongoDB ObjectID scalar",
+  serialize(value) {
+    if (value instanceof ObjectId) return value.toString();
+    if (typeof value === "string" && re.test(value)) return value;
+    throw new TypeError(`Invalid ObjectID: ${value as any}`);
+  },
+  parseValue(value) {
+    if (typeof value !== "string" || !re.test(value))
+      throw new TypeError(`Invalid ObjectID: ${value as any}`);
+    return new ObjectId(value);
+  },
+  parseLiteral(ast) {
+    if (ast.kind !== Kind.STRING)
+      throw new GraphQLError(`ObjectID must be a string`);
+    if (!re.test(ast.value))
+      throw new TypeError(`Invalid ObjectID: ${ast.value}`);
+    return new ObjectId(ast.value);
+  },
+});
+```
+
+- Example type resolvers:
+
+```ts
+// graphql/types/user/index.ts
+import type { GqlResolvers } from "@/graphql/__generated__/types";
+
+const userTypes: GqlResolvers["User"] = {
+  id: (parent) => parent._id,
+};
+
+export default { User: userTypes } satisfies Partial<GqlResolvers>;
+```
+
+## 5. Codegen (typed resolvers + mappers)
+
+- Use SDL from `graphql/schema/**/*.graphql`.
+- Map GraphQL types/enums/scalars to TS:
+  - User -> UserDocument
+  - Role -> backend Role enum
+  - ObjectID -> mongodb#ObjectId
+- Example `codegen.ts`:
+
+```ts
+import type { CodegenConfig } from "@graphql-codegen/cli";
+
+const config: CodegenConfig = {
+  schema: "./graphql/schema/**/*.graphql",
+  generates: {
+    "./graphql/__generated__/types.ts": {
+      plugins: ["typescript", "typescript-resolvers"],
+      config: {
+        useIndexSignature: true,
+        contextType: "@/graphql/resolvers#GraphQLContext",
+        typesPrefix: "Gql",
+        mappers: { User: "@/types#UserDocument" },
+        enumValues: { Role: "@/types#Role" },
+        scalars: { ObjectID: "mongodb#ObjectId", DateTime: "string" },
+      },
+    },
+  },
+  hooks: { afterAllFileWrite: ["prettier --write"] },
+};
+
+export default config;
+```
+
+- After SDL/resolver updates:
+
+```bash
+npm run codegen
+```
+
+## 6. Auth integration (optional)
+
+- If the feature touches users, keep auth concerns in `lib/auth.ts` (NextAuth callbacks/events) and data writes in repository. Example: on `signIn` event, default `role` and persist provider IDs via the typed `users` collection.
+
+## 7. Testing
+
+- Manual via GraphQL sandbox at `/api/graphql`
+- Jest unit tests for repository/services if logic grows.
+
+## Best practices
+
+- SRP: One file per resolver; keep resolvers thin; push logic into repository/services.
+- OCP: Add fields/types compatibly; prefer extending SDL and adding new resolvers vs. breaking changes.
+- Type-safety: Always return typed documents (e.g., `UserDocument`) and let type resolvers/scalars shape GraphQL output.
+- Performance: Add indexes as needed (e.g., `email` unique). Consider DataLoader if you add nested resolution.
+
+This guide mirrors NeuroVibes’ patterns while adapting to a single-app Next.js stack (no monorepo packages, no CASL/migrations by default).

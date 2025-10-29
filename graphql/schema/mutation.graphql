@@ -1,0 +1,6 @@
+type Mutation {
+  # Minimal user CRUD
+  createUser(input: CreateUserInput!): CreateUserResponse!
+  updateUser(id: ID!, input: UpdateUserInput!): UpdateUserResponse!
+  deleteUser(id: ID!): Boolean!
+}
