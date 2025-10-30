@@ -1,7 +1,5 @@
 import getUserCollections from "@/db/users/getCollections";
 import { ObjectId } from "mongodb";
-import { Role, type UserDocument } from "@/types";
-import { toIso } from "@/lib/dayjs";
 import type { GqlMutationResolvers } from "@/graphql/__generated__/types";
 
 const updateUser: GqlMutationResolvers["updateUser"] = async (
@@ -18,28 +16,23 @@ const updateUser: GqlMutationResolvers["updateUser"] = async (
     updatePayload.image = input.image;
   }
   if (typeof input.role !== "undefined" && input.role) {
-    updatePayload.role =
-      (input.role as unknown) === ("ADMIN" as any) ||
-      (input.role as unknown) === ("Admin" as any)
-        ? Role.ADMIN
-        : Role.USER;
+    updatePayload.role = input.role;
   }
 
-  const userResult = (await users.findOneAndUpdate(
+  const userResult = await users.findOneAndUpdate(
     { _id: new ObjectId(id) },
     { $set: updatePayload },
     { returnDocument: "after" }
-  )) as any;
+  );
 
-  if (!userResult || !userResult.value) {
+  if (!userResult) {
     return {
       __typename: "ErrorResponse",
       fields: [{ field: "id", message: "User not found" }],
     };
   }
 
-  const doc = userResult.value as UserDocument;
-  return { __typename: "UpdateUserSuccessfulResponse", user: doc };
+  return { __typename: "UpdateUserSuccessfulResponse", user: userResult };
 };
 
 export default updateUser;

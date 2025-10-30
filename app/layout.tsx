@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "./fonts";
+import ApolloClientProvider from "@/app/ApolloClientProvider";
+import NextAuthProvider from "@/app/NextAuthProvider";
 
 export const metadata: Metadata = {
   title: "Next.js + MongoDB",
@@ -14,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} dark`}>
-      <body>{children}</body>
+      <body>
+        <NextAuthProvider>
+          <ApolloClientProvider>{children}</ApolloClientProvider>
+        </NextAuthProvider>
+      </body>
     </html>
   );
 }

@@ -1,5 +1,5 @@
-import AuthenticatedRoutes from "@/components/routes/AuthenticatedRoutes";
-import UnauthenticatedRoutes from "@/components/routes/UnauthenticatedRoutes";
+import AuthenticatedRoutes from "@/app/routes/AuthenticatedRoutes";
+import UnauthenticatedRoutes from "@/app/routes/UnauthenticatedRoutes";
 
 interface AppRoutesProps {
   isAuthenticated: boolean;

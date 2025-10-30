@@ -1,4 +1,4 @@
-import HomePage from "@/components/pages/HomePage";
+import HomePage from "@/app/pages/home/HomePage";
 
 const AuthenticatedRoutes = () => {
   return <HomePage />;

@@ -1,0 +1,7 @@
+query getUser($id: ObjectID!) {
+  getUser(id: $id) {
+    id
+    email
+    name
+  }
+}

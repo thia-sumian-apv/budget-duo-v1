@@ -17,7 +17,7 @@ const AuthPage = () => {
         >
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-              <Sparkles className="h-3.5 w-3.5 text-[#00ED64]" />
+              <Sparkles className="h-3.5 w-3.5 text-[#3B82F6]" />
               <span>Welcome back</span>
             </div>
             <h1 className="mt-4 text-2xl font-semibold tracking-tight">

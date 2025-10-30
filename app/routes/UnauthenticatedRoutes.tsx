@@ -1,4 +1,4 @@
-import LandingPage from "@/components/pages/LandingPage";
+import LandingPage from "@/app/pages/LandingPage";
 
 const UnauthenticatedRoutes = () => {
   // Default unauthenticated experience is the marketing landing page.

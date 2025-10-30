@@ -27,6 +27,9 @@
   "scripts": {
     "dev": "next dev --turbopack -p 4001",
     "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "predev": "npm run codegen",
+    "prebuild": "npm run codegen",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -34,6 +37,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@apollo/client": "^3.14.0",
     "@apollo/server": "^5.0.0",
     "@as-integrations/next": "^4.1.0",
     "@auth/mongodb-adapter": "^3.11.1",
@@ -43,9 +47,10 @@
     "@radix-ui/react-slot": "^1.2.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
+    "framer-motion": "^11.2.6",
     "graphql": "^16.11.0",
     "graphql-tag": "^2.12.6",
-    "dayjs": "^1.11.13",
     "lodash": "^4.17.21",
     "lucide-react": "^0.510.0",
     "mongodb": "^6.3.0",
@@ -54,13 +59,15 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7",
-    "framer-motion": "^11.2.6"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@graphql-codegen/cli": "^6.0.1",
+    "@graphql-codegen/near-operation-file-preset": "^3.1.0",
     "@graphql-codegen/typescript": "^5.0.2",
+    "@graphql-codegen/typescript-operations": "^5.0.2",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.3",
     "@graphql-codegen/typescript-resolvers": "^5.1.0",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20",

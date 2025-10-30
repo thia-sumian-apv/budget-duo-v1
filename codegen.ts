@@ -21,11 +21,36 @@ const config: CodegenConfig = {
         },
       },
     },
-    // Client operations (if you write .graphql documents later)
-    // "./graphql/__generated__/operations.ts": {
-    //   documents: "./**/*.graphql",
-    //   plugins: ["typescript", "typescript-operations"],
-    // },
+    // Client types + hooks for React (near .graphql files)
+    "./app/apolloClient.types.ts": {
+      plugins: ["typescript"],
+      config: {
+        scalars: {
+          ObjectID: "string",
+          DateTime: "string",
+        },
+        nonOptionalTypename: true,
+      },
+    },
+    "./app/": {
+      documents: "./app/**/*.graphql",
+      preset: "near-operation-file",
+      presetConfig: {
+        extension: ".api.ts",
+        baseTypesPath: "apolloClient.types.ts",
+        importTypesNamespace: "SchemaTypes",
+      },
+      plugins: ["typescript-operations", "typescript-react-apollo"],
+      config: {
+        withHooks: true,
+        documentMode: "graphQLTag",
+        nonOptionalTypename: true,
+        scalars: {
+          ObjectID: "string",
+          DateTime: "string",
+        },
+      },
+    },
   },
   hooks: {
     afterAllFileWrite: ["prettier --write"],
