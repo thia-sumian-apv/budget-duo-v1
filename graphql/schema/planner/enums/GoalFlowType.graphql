@@ -1,0 +1,11 @@
+"""
+Flow type of a financial goal indicating if it's spending, saving, or investing.
+"""
+enum GoalFlowType {
+  "Spending (e.g., groceries, utilities)"
+  EXPENSE
+  "Saving for something"
+  SAVINGS
+  "Investing (stocks, property, etc.)"
+  INVESTMENT
+}

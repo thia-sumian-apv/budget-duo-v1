@@ -1,0 +1,20 @@
+"""
+Computed CPF (Central Provident Fund) contributions based on age and income.
+Used for Singapore CPF-aware budget planning.
+"""
+type CPFBreakdown {
+  """Amount deducted from employee's salary"""
+  employeeContribution: Float!
+  """Employer's CPF contribution"""
+  employerContribution: Float!
+  """Total CPF contribution (employee + employer)"""
+  totalContribution: Float!
+  """Ordinary Account - for housing, education, investment"""
+  ordinaryAccount: Float!
+  """Special Account - for retirement"""
+  specialAccount: Float!
+  """Medisave Account - for healthcare"""
+  medisaveAccount: Float!
+  """Net salary after CPF deduction"""
+  takeHomePay: Float!
+}

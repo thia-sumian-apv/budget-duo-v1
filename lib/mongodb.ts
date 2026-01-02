@@ -3,6 +3,9 @@ import { MongoClient, MongoClientOptions } from "mongodb";
 const uri = process.env.MONGODB_URI;
 const options: MongoClientOptions = {
   appName: "devrel.nextjs.starter",
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  family: 4, // Force IPv4
 };
 
 if (!uri) {

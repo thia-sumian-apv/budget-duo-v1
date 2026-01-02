@@ -1,0 +1,24 @@
+union CreateGoalResponse = CreateGoalSuccessfulResponse | ErrorResponse
+
+type CreateGoalSuccessfulResponse {
+  goal: Goal!
+}
+
+union UpdateGoalResponse = UpdateGoalSuccessfulResponse | ErrorResponse
+
+type UpdateGoalSuccessfulResponse {
+  goal: Goal!
+}
+
+union DeleteGoalResponse = DeleteGoalSuccessfulResponse | ErrorResponse
+
+type DeleteGoalSuccessfulResponse {
+  success: Boolean!
+  deletedId: ObjectID!
+}
+
+union UpdateRatioSettingsResponse = UpdateRatioSettingsSuccessfulResponse | ErrorResponse
+
+type UpdateRatioSettingsSuccessfulResponse {
+  planner: Planner!
+}

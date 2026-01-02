@@ -1,0 +1,8 @@
+"""
+Input for updating a member's financial data within a planner.
+"""
+input UpdateMemberDataInput {
+  displayName: String
+  age: Int
+  monthlyIncome: Float
+}

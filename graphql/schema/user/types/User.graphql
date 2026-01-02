@@ -11,4 +11,6 @@ type User {
   providerAccountId: String
   createdAt: String
   updatedAt: String
+  displayName: String
+  planners: [Planner!]!
 }

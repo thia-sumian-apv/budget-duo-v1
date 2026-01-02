@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
-  darkMode: "media",
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,14 +11,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", ...defaultTheme.fontFamily.sans],
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sans: ["var(--font-open-sans)", ...defaultTheme.fontFamily.sans],
+        heading: ["var(--font-ubuntu)", ...defaultTheme.fontFamily.sans],
       },
       colors: {
+        // Custom palette
+        base: "var(--base)",
+        "highlight-light": "var(--highlight-light)",
+        highlight: "var(--highlight)",
+        navy: "var(--navy)",
+        // Semantic colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -59,6 +61,11 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
     },
   },

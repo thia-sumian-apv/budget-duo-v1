@@ -1,0 +1,5 @@
+union UpdateMemberDataResponse = UpdateMemberDataSuccessfulResponse | ErrorResponse
+
+type UpdateMemberDataSuccessfulResponse {
+  planner: Planner!
+}

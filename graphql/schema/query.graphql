@@ -1,3 +1,15 @@
 type Query {
   getUser(id: ObjectID!): User
+
+  """Get the current authenticated user"""
+  me: User
+
+  """Get a planner by ID (must be a member)"""
+  getPlanner(id: ObjectID!): Planner
+
+  """Get all planners for the current user"""
+  myPlanners: [Planner!]!
+
+  """Look up a planner by code (for previewing before joining)"""
+  getPlannerByCode(code: String!): Planner
 }

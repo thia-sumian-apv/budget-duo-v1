@@ -1,0 +1,9 @@
+"""
+Mode for calculating contribution ratios between planner members.
+"""
+enum RatioMode {
+  "Calculate ratios based on income proportions"
+  INCOME_BASED
+  "Use custom user-defined percentages"
+  CUSTOM
+}

@@ -3,4 +3,38 @@ type Mutation {
   createUser(input: CreateUserInput!): CreateUserResponse!
   updateUser(id: ID!, input: UpdateUserInput!): UpdateUserResponse!
   deleteUser(id: ID!): Boolean!
+
+  # User profile
+  """Update the current user's profile (displayName)"""
+  updateProfile(input: UpdateProfileInput!): UpdateProfileResponse!
+
+  # Planner management
+  """Create a new planner (current user becomes owner)"""
+  createPlanner(input: CreatePlannerInput!): CreatePlannerResponse!
+
+  """Join an existing planner by code"""
+  joinPlanner(input: JoinPlannerInput!): JoinPlannerResponse!
+
+  """Leave a planner (owner cannot leave, must transfer or delete)"""
+  leavePlanner(plannerId: ObjectID!): LeavePlannerResponse!
+
+  """Update member's financial data in a planner (age, income)"""
+  updateMemberData(plannerId: ObjectID!, input: UpdateMemberDataInput!): UpdateMemberDataResponse!
+
+  """Delete a planner (owner only)"""
+  deletePlanner(id: ObjectID!): Boolean!
+
+  # Goal management
+  """Create a new goal in a planner"""
+  createGoal(input: CreateGoalInput!): CreateGoalResponse!
+
+  """Update an existing goal"""
+  updateGoal(id: ObjectID!, input: UpdateGoalInput!): UpdateGoalResponse!
+
+  """Delete a goal"""
+  deleteGoal(id: ObjectID!): DeleteGoalResponse!
+
+  # Ratio settings
+  """Update the ratio settings for a planner"""
+  updateRatioSettings(plannerId: ObjectID!, input: RatioSettingsInput!): UpdateRatioSettingsResponse!
 }

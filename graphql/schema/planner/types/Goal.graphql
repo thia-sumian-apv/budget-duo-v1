@@ -1,0 +1,29 @@
+"""
+A financial goal or expense within a planner.
+Goals can be monthly expenses or time-bound savings goals.
+"""
+type Goal {
+  id: ObjectID!
+  planner: Planner!
+  name: String!
+  "Total amount (or monthly if category=MONTHLY)"
+  amount: Float!
+  category: GoalCategory!
+  "Number of months (if category=GOAL)"
+  duration: Int
+  "Start month for time-bound goals (YYYY-MM format)"
+  startDate: String
+  "End month calculated from startDate + duration (YYYY-MM format)"
+  endDate: String
+  "Monthly contribution (calculated: amount/duration for GOAL, amount for MONTHLY)"
+  monthlyAmount: Float!
+  ownerType: GoalOwnerType!
+  "User who owns this goal (for USER/PARTNER types)"
+  owner: User
+  flowType: GoalFlowType!
+  "User toggle: deduct from CPF OA if true"
+  isCpfEligible: Boolean!
+  remarks: String
+  createdAt: String!
+  updatedAt: String!
+}

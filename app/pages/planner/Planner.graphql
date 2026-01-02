@@ -1,0 +1,303 @@
+query MyPlanners {
+  myPlanners {
+    id
+    name
+    code
+    members {
+      user {
+        id
+        name
+        email
+        image
+      }
+      displayName
+      age
+      monthlyIncome
+      role
+      joinedAt
+      cpfBreakdown {
+        employeeContribution
+        employerContribution
+        totalContribution
+        ordinaryAccount
+        specialAccount
+        medisaveAccount
+        takeHomePay
+      }
+    }
+    goals {
+      id
+      name
+      monthlyAmount
+      flowType
+      ownerType
+      owner {
+        id
+      }
+      isCpfEligible
+    }
+    ratioMode
+    customRatios {
+      userId
+      percentage
+    }
+    createdAt
+  }
+}
+
+query GetPlanner($id: ObjectID!) {
+  getPlanner(id: $id) {
+    id
+    name
+    code
+    members {
+      user {
+        id
+        name
+        email
+        image
+      }
+      displayName
+      age
+      monthlyIncome
+      role
+      joinedAt
+      cpfBreakdown {
+        employeeContribution
+        employerContribution
+        totalContribution
+        ordinaryAccount
+        specialAccount
+        medisaveAccount
+        takeHomePay
+      }
+    }
+    ratioMode
+    customRatios {
+      userId
+      percentage
+    }
+    goals {
+      id
+      name
+      amount
+      category
+      duration
+      startDate
+      endDate
+      monthlyAmount
+      ownerType
+      owner {
+        id
+        name
+      }
+      flowType
+      isCpfEligible
+      remarks
+      createdAt
+      updatedAt
+    }
+    createdBy {
+      id
+      name
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+query GetPlannerByCode($code: String!) {
+  getPlannerByCode(code: $code) {
+    id
+    name
+    code
+    members {
+      user {
+        id
+        name
+      }
+      role
+    }
+  }
+}
+
+mutation CreatePlanner($input: CreatePlannerInput!) {
+  createPlanner(input: $input) {
+    ... on CreatePlannerSuccessfulResponse {
+      planner {
+        id
+        name
+        code
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation JoinPlanner($input: JoinPlannerInput!) {
+  joinPlanner(input: $input) {
+    ... on JoinPlannerSuccessfulResponse {
+      planner {
+        id
+        name
+        code
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation LeavePlanner($plannerId: ObjectID!) {
+  leavePlanner(plannerId: $plannerId) {
+    ... on LeavePlannerSuccessfulResponse {
+      success
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation UpdateMemberData($plannerId: ObjectID!, $input: UpdateMemberDataInput!) {
+  updateMemberData(plannerId: $plannerId, input: $input) {
+    ... on UpdateMemberDataSuccessfulResponse {
+      planner {
+        id
+        members {
+          user {
+            id
+          }
+          displayName
+          age
+          monthlyIncome
+          cpfBreakdown {
+            employeeContribution
+            employerContribution
+            totalContribution
+            ordinaryAccount
+            specialAccount
+            medisaveAccount
+            takeHomePay
+          }
+        }
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation CreateGoal($input: CreateGoalInput!) {
+  createGoal(input: $input) {
+    ... on CreateGoalSuccessfulResponse {
+      goal {
+        id
+        name
+        amount
+        category
+        duration
+        startDate
+        endDate
+        monthlyAmount
+        ownerType
+        owner {
+          id
+          name
+        }
+        flowType
+        isCpfEligible
+        remarks
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation UpdateGoal($id: ObjectID!, $input: UpdateGoalInput!) {
+  updateGoal(id: $id, input: $input) {
+    ... on UpdateGoalSuccessfulResponse {
+      goal {
+        id
+        name
+        amount
+        category
+        duration
+        startDate
+        endDate
+        monthlyAmount
+        ownerType
+        owner {
+          id
+          name
+        }
+        flowType
+        isCpfEligible
+        remarks
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation DeleteGoal($id: ObjectID!) {
+  deleteGoal(id: $id) {
+    ... on DeleteGoalSuccessfulResponse {
+      success
+      deletedId
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
+
+mutation UpdateRatioSettings($plannerId: ObjectID!, $input: RatioSettingsInput!) {
+  updateRatioSettings(plannerId: $plannerId, input: $input) {
+    ... on UpdateRatioSettingsSuccessfulResponse {
+      planner {
+        id
+        ratioMode
+        customRatios {
+          userId
+          percentage
+        }
+      }
+    }
+    ... on ErrorResponse {
+      fields {
+        field
+        message
+      }
+    }
+  }
+}
