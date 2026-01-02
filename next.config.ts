@@ -9,8 +9,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
-  experimental: {
-    // Keep turbopack; no change needed for GraphQL route
+  // IMPORTANT (serverless): our GraphQL schema is loaded from *.graphql files at runtime
+  // via @graphql-tools/load-files. Ensure Next/Vercel traces and bundles these files.
+  //
+  // Without this, production may build a schema missing domain types (e.g. `User`),
+  // causing: `"User" defined in resolvers, but not in schema`.
+  outputFileTracingIncludes: {
+    "/api/graphql": ["./graphql/schema/**/*.graphql"],
   },
 };
 

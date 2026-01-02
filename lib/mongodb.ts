@@ -25,12 +25,20 @@ if (process.env.NODE_ENV === "development") {
   if (!globalWithMongo._mongoClientPromise) {
     client = new MongoClient(uri, options);
     globalWithMongo._mongoClientPromise = client.connect();
+    // Avoid noisy/unhandled promise rejection logs if Mongo isn't reachable during startup.
+    void globalWithMongo._mongoClientPromise.catch((err) => {
+      console.error("MongoDB connection error:", err);
+    });
   }
   clientPromise = globalWithMongo._mongoClientPromise!;
 } else {
   // In production mode, it's best to not use a global variable.
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
+  // Avoid noisy/unhandled promise rejection logs if Mongo isn't reachable during startup.
+  void clientPromise.catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 }
 
 // Export a module-scoped MongoClient promise. By doing this in a
