@@ -6,6 +6,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import schema from "@/graphql/schema";
 
+// Ensure Vercel/Next treats this as a server (not statically optimized) route.
+// This is required for GraphQL POST requests and session-based auth.
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const server = new ApolloServer({
   schema,
   introspection: process.env.NODE_ENV !== "production",
