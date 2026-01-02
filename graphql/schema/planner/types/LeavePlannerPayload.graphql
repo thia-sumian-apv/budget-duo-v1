@@ -1,0 +1,5 @@
+union LeavePlannerResponse = LeavePlannerSuccessfulResponse | ErrorResponse
+
+type LeavePlannerSuccessfulResponse {
+  success: Boolean!
+}

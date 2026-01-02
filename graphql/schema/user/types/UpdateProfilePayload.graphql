@@ -1,0 +1,5 @@
+union UpdateProfileResponse = UpdateProfileSuccessfulResponse | ErrorResponse
+
+type UpdateProfileSuccessfulResponse {
+  user: User!
+}

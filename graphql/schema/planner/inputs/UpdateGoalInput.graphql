@@ -1,0 +1,15 @@
+"""
+Input for updating an existing goal.
+"""
+input UpdateGoalInput {
+  name: String
+  amount: Float
+  category: GoalCategory
+  duration: Int
+  "Start month for time-bound goals (YYYY-MM format)"
+  startDate: String
+  ownerType: GoalOwnerType
+  flowType: GoalFlowType
+  isCpfEligible: Boolean
+  remarks: String
+}

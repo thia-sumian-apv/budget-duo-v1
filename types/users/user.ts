@@ -15,4 +15,5 @@ export interface UserDocument {
   providerAccountId?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  displayName?: string | null;
 }

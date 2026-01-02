@@ -1,0 +1,5 @@
+union JoinPlannerResponse = JoinPlannerSuccessfulResponse | ErrorResponse
+
+type JoinPlannerSuccessfulResponse {
+  planner: Planner!
+}

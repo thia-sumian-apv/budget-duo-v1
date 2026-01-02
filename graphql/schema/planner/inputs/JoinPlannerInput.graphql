@@ -1,0 +1,4 @@
+input JoinPlannerInput {
+  """The 6-character planner code (case-insensitive)"""
+  code: String!
+}

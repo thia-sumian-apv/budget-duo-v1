@@ -1,0 +1,25 @@
+"""
+A planner that can be shared between multiple users (typically a couple).
+Each planner has a unique code for sharing and stores per-member financial data.
+"""
+type Planner {
+  id: ObjectID!
+  name: String!
+  code: String!
+  members: [PlannerMember!]!
+  ratioMode: RatioMode!
+  "Custom ratios per user (percentages 0-100). Keys are user IDs."
+  customRatios: [CustomRatio!]
+  goals: [Goal!]!
+  createdBy: User!
+  createdAt: String!
+  updatedAt: String!
+}
+
+"""
+A custom ratio entry mapping a user to their contribution percentage.
+"""
+type CustomRatio {
+  userId: ObjectID!
+  percentage: Int!
+}

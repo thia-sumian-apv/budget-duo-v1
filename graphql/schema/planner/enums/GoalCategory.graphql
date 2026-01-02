@@ -1,0 +1,9 @@
+"""
+Category of a financial goal.
+"""
+enum GoalCategory {
+  "Recurring monthly expense"
+  MONTHLY
+  "Time-bound goal with target amount"
+  GOAL
+}

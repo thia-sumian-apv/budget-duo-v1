@@ -7,30 +7,30 @@ import { motion } from "framer-motion";
 
 const AuthPage = () => {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-base text-navy">
       <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 lg:px-8">
         <motion.div
-          className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8"
+          className="w-full max-w-md rounded-2xl border border-navy/10 bg-white/50 p-8 shadow-xl"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
           <div className="mb-6 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-              <Sparkles className="h-3.5 w-3.5 text-[#3B82F6]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white/70 px-3 py-1 text-xs text-navy/70">
+              <Sparkles className="h-3.5 w-3.5 text-highlight" />
               <span>Welcome back</span>
             </div>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-4 text-2xl font-heading font-semibold tracking-tight text-navy">
               Sign in to Budget Duo
             </h1>
-            <p className="mt-2 text-sm text-white/70">
+            <p className="mt-2 text-sm text-navy/70">
               Choose a provider to continue.
             </p>
           </div>
 
           <div className="space-y-3">
             <Button
-              className="w-full justify-center rounded-md bg-white text-black hover:bg-white/90"
+              className="w-full justify-center rounded-md bg-navy text-white hover:bg-navy/90"
               onClick={() => signIn("google", { callbackUrl: "/" })}
             >
               <svg
@@ -59,14 +59,14 @@ const AuthPage = () => {
             </Button>
 
             <Button
-              className="w-full justify-center rounded-md bg-white/[0.06] text-white hover:bg-white/[0.12]"
+              className="w-full justify-center rounded-md bg-navy/10 text-navy hover:bg-navy/20"
               onClick={() => signIn("github", { callbackUrl: "/" })}
             >
               <Github className="mr-2 h-4 w-4" /> Continue with GitHub
             </Button>
           </div>
 
-          <p className="mt-6 text-center text-xs text-white/50">
+          <p className="mt-6 text-center text-xs text-navy/50">
             By continuing you agree to our Terms and Privacy Policy.
           </p>
         </motion.div>

@@ -1,0 +1,6 @@
+"""
+Input for updating user profile (account-level settings).
+"""
+input UpdateProfileInput {
+  displayName: String
+}

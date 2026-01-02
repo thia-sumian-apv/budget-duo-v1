@@ -1,0 +1,19 @@
+"""
+Input for creating a new goal within a planner.
+"""
+input CreateGoalInput {
+  plannerId: ObjectID!
+  name: String!
+  "Total amount (or monthly if category=MONTHLY)"
+  amount: Float!
+  category: GoalCategory!
+  "Number of months (required if category=GOAL)"
+  duration: Int
+  "Start month for time-bound goals (YYYY-MM format)"
+  startDate: String
+  ownerType: GoalOwnerType!
+  flowType: GoalFlowType!
+  "User toggle: deduct from CPF OA if true"
+  isCpfEligible: Boolean!
+  remarks: String
+}

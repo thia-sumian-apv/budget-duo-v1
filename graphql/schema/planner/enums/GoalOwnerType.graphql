@@ -1,0 +1,11 @@
+"""
+Owner type of a financial goal.
+"""
+enum GoalOwnerType {
+  "Current user's individual goal"
+  USER
+  "Partner's individual goal"
+  PARTNER
+  "Shared between both members"
+  SHARED
+}

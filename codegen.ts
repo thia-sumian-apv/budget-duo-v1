@@ -11,9 +11,17 @@ const config: CodegenConfig = {
         typesPrefix: "Gql",
         mappers: {
           User: "@/types#UserDocument",
+          Planner: "@/types#PlannerDocument",
+          PlannerMember: "@/types/planners/planner#PlannerMember",
+          Goal: "@/types#GoalDocument",
         },
         enumValues: {
           Role: "@/types#Role",
+          PlannerMemberRole: "@/types#PlannerMemberRole",
+          RatioMode: "@/types#RatioMode",
+          GoalCategory: "@/types#GoalCategory",
+          GoalOwnerType: "@/types#GoalOwnerType",
+          GoalFlowType: "@/types#GoalFlowType",
         },
         scalars: {
           ObjectID: "mongodb#ObjectId",

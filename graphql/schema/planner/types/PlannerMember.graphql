@@ -1,0 +1,14 @@
+"""
+A member of a planner with their role, join date, and financial data.
+Financial data (age, income) is per-planner, allowing users to have
+different settings across multiple planners.
+"""
+type PlannerMember {
+  user: User!
+  joinedAt: String!
+  role: PlannerMemberRole!
+  displayName: String
+  age: Int
+  monthlyIncome: Float
+  cpfBreakdown: CPFBreakdown
+}

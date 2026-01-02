@@ -1,0 +1,17 @@
+"""
+Input for updating ratio settings on a planner.
+"""
+input RatioSettingsInput {
+  ratioMode: RatioMode!
+  "Custom ratios per user. Only required if ratioMode=CUSTOM. Percentages must sum to 100."
+  customRatios: [CustomRatioInput!]
+}
+
+"""
+Input for a custom ratio entry.
+"""
+input CustomRatioInput {
+  userId: ObjectID!
+  "Percentage (0-100)"
+  percentage: Int!
+}
