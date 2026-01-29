@@ -19,7 +19,13 @@ export default {
         base: "var(--base)",
         "highlight-light": "var(--highlight-light)",
         highlight: "var(--highlight)",
-        navy: "var(--navy)",
+        "primary-dark": "#D87D41",
+        "background-light": "#F8FAFC",
+        navy: {
+          DEFAULT: "var(--navy)",
+          light: "#002b54",
+          dark: "#001224",
+        },
         // Semantic colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

@@ -1,50 +1,54 @@
 "use client";
 
 import Link from "next/link";
+import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const LandingNav = () => {
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-navy/10 bg-base/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6 lg:px-8">
-        <div className="flex items-center gap-6">
-          <Link
-            href="#"
-            className="text-sm font-heading font-bold tracking-tight"
-          >
-            Budget Duo
-          </Link>
-          <div className="hidden gap-5 text-sm text-navy/70 md:flex">
-            <Link
-              href="#features"
-              className="hover:text-navy transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              href="#how-it-works"
-              className="hover:text-navy transition-colors"
-            >
-              How it works
-            </Link>
-            <Link href="#pricing" className="hover:text-navy transition-colors">
-              Pricing
-            </Link>
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-gray-200/50 bg-white/70 backdrop-blur-lg">
+      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-highlight shadow-lg shadow-highlight/30">
+            <Wallet className="h-6 w-6 text-white" />
           </div>
+          <span className="text-2xl font-bold tracking-tighter text-navy">
+            Budget Duo
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-10 md:flex">
+          <Link
+            href="#features"
+            className="text-sm font-bold uppercase tracking-wide text-navy hover:text-highlight transition-colors"
+          >
+            Features
+          </Link>
+          <Link
+            href="#how-it-works"
+            className="text-sm font-bold uppercase tracking-wide text-navy hover:text-highlight transition-colors"
+          >
+            How it works
+          </Link>
+          <Link
+            href="#pricing"
+            className="text-sm font-bold uppercase tracking-wide text-navy hover:text-highlight transition-colors"
+          >
+            Pricing
+          </Link>
+        </div>
+        <div className="flex items-center gap-4">
           <Button
             asChild
             variant="ghost"
-            className="h-8 px-3 text-sm text-navy hover:bg-navy/5"
+            className="px-4 py-2 text-sm font-bold text-navy hover:text-highlight"
           >
             <Link href="/login">Login</Link>
           </Button>
           <Button
             asChild
-            className="h-8 rounded-full bg-highlight px-3 text-sm text-white hover:bg-highlight/90"
+            className="rounded-full bg-navy px-8 py-3 text-sm font-bold text-white shadow-xl transition-all hover:scale-105 hover:bg-navy-light"
           >
-            <Link href="/login">Try for free</Link>
+            <Link href="/login">Get Started</Link>
           </Button>
         </div>
       </div>
