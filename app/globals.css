@@ -5,10 +5,10 @@
 @layer base {
   :root {
     /* New color palette */
-    --base: #E6E6E6;
-    --highlight-light: #F7B980;
-    --highlight: #ED985F;
-    --navy: #001F3D;
+    --base: #e6e6e6;
+    --highlight-light: #f7b980;
+    --highlight: #ed985f;
+    --navy: #001f3d;
 
     /* Semantic colors using the palette */
     --background: 0 0% 90%;
@@ -49,7 +49,77 @@
   }
 
   /* Typography - ensure headers use navy color */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-medium text-navy;
+  }
+}
+
+@layer components {
+  /* Landing page utility classes */
+  .glass-card {
+    @apply bg-white/40 backdrop-blur-xl border border-white/40 shadow-xl;
+  }
+
+  .ui-snippet {
+    @apply bg-white border border-gray-200 rounded-xl shadow-lg p-4;
+  }
+
+  .glow-border {
+    box-shadow: 0 0 30px rgba(237, 152, 95, 0.3);
+    border: 2px solid rgba(237, 152, 95, 0.6);
+  }
+
+  .app-texture {
+    background-image: radial-gradient(
+      circle at 2px 2px,
+      rgba(0, 0, 0, 0.02) 1px,
+      transparent 0
+    );
+    background-size: 32px 32px;
+  }
+
+  /* Dashboard utility classes */
+  .dashboard-card {
+    @apply bg-white border border-gray-200/50 shadow-sm rounded-3xl;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-semibold;
+  }
+
+  .sidebar-item-active {
+    @apply bg-highlight text-white shadow-lg;
+  }
+
+  .sidebar-item-inactive {
+    @apply text-navy hover:bg-gray-100;
+  }
+
+  .sidebar-item-locked {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+@layer utilities {
+  .organic-shape {
+    position: absolute;
+    z-index: -1;
+    filter: blur(80px);
+    border-radius: 50%;
+  }
+
+  .pathway-line {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, #ed985f, transparent);
+    z-index: 0;
+    opacity: 0.3;
   }
 }

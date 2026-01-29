@@ -1,6 +1,7 @@
 export { LandingNav } from "./LandingNav";
 export { HeroSection } from "./HeroSection";
-export { FeaturesSection } from "./FeaturesSection";
-export { HowItWorks, HowItWorksStep } from "./HowItWorks";
+export { PathwayDivider } from "./PathwayDivider";
+export { FAQFeaturesSection } from "./FAQFeaturesSection";
 export { PricingCard, PricingSection } from "./PricingCard";
+export { CTASection } from "./CTASection";
 export { LandingFooter } from "./LandingFooter";

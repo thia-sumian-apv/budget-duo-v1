@@ -1,17 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+
+interface PricingFeature {
+  text: string;
+  included: boolean;
+}
 
 interface PricingTier {
   name: string;
   price: string;
   period?: string;
+  periodLabel?: string;
   description: string;
-  features: string[];
+  features: PricingFeature[];
   highlighted?: boolean;
   badge?: string;
   cta: string;
@@ -27,91 +33,107 @@ export const PricingCard = ({ tier, index }: PricingCardProps) => {
   return (
     <motion.div
       className={cn(
-        "relative rounded-2xl p-6 lg:p-8 flex flex-col",
+        "relative flex flex-col transition-transform hover:-translate-y-2",
         tier.highlighted
-          ? "bg-navy text-white border-2 border-highlight shadow-xl scale-105"
-          : "bg-white/60 border border-navy/10"
+          ? "bg-navy p-12 rounded-[3rem] glow-border z-10 scale-105 shadow-2xl"
+          : "bg-white p-10 rounded-[2.5rem] border border-gray-200",
       )}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      whileHover={{ y: -4 }}
     >
       {/* Badge */}
       {tier.badge && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-highlight text-white">
+        <div className="absolute -top-5 left-1/2 -translate-x-1/2">
+          <span className="px-8 py-2 text-xs font-black uppercase tracking-widest rounded-full bg-highlight text-white shadow-lg">
             {tier.badge}
           </span>
         </div>
       )}
 
       {/* Header */}
-      <div className="text-center pb-6 border-b border-current/10">
-        <h3
+      <h3
+        className={cn(
+          "text-2xl font-bold mb-2",
+          tier.highlighted ? "text-white" : "text-navy",
+        )}
+      >
+        {tier.name}
+      </h3>
+      <p
+        className={cn(
+          "mb-8",
+          tier.highlighted ? "text-gray-400" : "text-gray-500",
+        )}
+      >
+        {tier.description}
+      </p>
+
+      {/* Price */}
+      <div className="mb-8">
+        <span
           className={cn(
-            "font-heading text-lg font-semibold",
-            tier.highlighted ? "text-white" : "text-navy"
+            "font-bold",
+            tier.highlighted ? "text-6xl text-white" : "text-5xl text-navy",
           )}
         >
-          {tier.name}
-        </h3>
-        <div className="mt-3 flex items-baseline justify-center gap-1">
+          {tier.price}
+        </span>
+        {tier.period && (
           <span
             className={cn(
-              "font-heading text-4xl font-bold",
-              tier.highlighted ? "text-white" : "text-navy"
+              "text-sm ml-2 uppercase tracking-widest",
+              tier.highlighted ? "text-gray-500" : "text-gray-400",
             )}
           >
-            {tier.price}
+            /{tier.period}
           </span>
-          {tier.period && (
-            <span
-              className={cn(
-                "text-sm",
-                tier.highlighted ? "text-white/60" : "text-navy/60"
-              )}
-            >
-              /{tier.period}
-            </span>
-          )}
-        </div>
-        <p
-          className={cn(
-            "mt-2 text-sm",
-            tier.highlighted ? "text-white/70" : "text-navy/60"
-          )}
-        >
-          {tier.description}
-        </p>
+        )}
+        {tier.periodLabel && (
+          <span
+            className={cn(
+              "text-sm ml-2 uppercase tracking-widest",
+              tier.highlighted ? "text-gray-500" : "text-gray-400",
+            )}
+          >
+            {tier.periodLabel}
+          </span>
+        )}
       </div>
 
       {/* Features */}
-      <ul className="flex-1 py-6 space-y-3">
+      <ul
+        className={cn(
+          "flex-1 mb-10",
+          tier.highlighted ? "space-y-5" : "space-y-4",
+        )}
+      >
         {tier.features.map((feature, i) => (
-          <li key={i} className="flex items-start gap-3">
-            <div
-              className={cn(
-                "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0",
-                tier.highlighted ? "bg-highlight" : "bg-highlight/10"
-              )}
-            >
+          <li
+            key={i}
+            className={cn(
+              "flex items-center gap-3",
+              tier.highlighted ? "text-sm font-bold" : "text-sm font-medium",
+              feature.included
+                ? tier.highlighted
+                  ? "text-white"
+                  : "text-navy"
+                : "text-gray-400",
+            )}
+          >
+            {feature.included ? (
               <Check
                 className={cn(
-                  "w-3 h-3",
-                  tier.highlighted ? "text-white" : "text-highlight"
+                  tier.highlighted
+                    ? "h-6 w-6 text-highlight"
+                    : "h-5 w-5 text-highlight",
                 )}
               />
-            </div>
-            <span
-              className={cn(
-                "text-sm",
-                tier.highlighted ? "text-white/90" : "text-navy/70"
-              )}
-            >
-              {feature}
-            </span>
+            ) : (
+              <X className="h-5 w-5" />
+            )}
+            {feature.text}
           </li>
         ))}
       </ul>
@@ -120,10 +142,10 @@ export const PricingCard = ({ tier, index }: PricingCardProps) => {
       <Button
         asChild
         className={cn(
-          "w-full rounded-full",
+          "w-full rounded-2xl text-xs font-black uppercase tracking-widest transition-all",
           tier.highlighted
-            ? "bg-highlight text-white hover:bg-highlight/90"
-            : "bg-navy/10 text-navy hover:bg-navy/20"
+            ? "py-5 bg-gradient-to-r from-highlight to-primary-dark text-white shadow-xl shadow-highlight/20 hover:brightness-110 scale-105"
+            : "py-4 border-2 border-navy text-navy hover:bg-navy hover:text-white",
         )}
       >
         <Link href={tier.ctaHref}>{tier.cta}</Link>
@@ -134,49 +156,45 @@ export const PricingCard = ({ tier, index }: PricingCardProps) => {
 
 const defaultTiers: PricingTier[] = [
   {
-    name: "Free",
+    name: "The Starter Duo",
     price: "$0",
-    description: "Perfect for getting started",
+    periodLabel: "Free forever",
+    description: "Basic automation for new couples.",
     features: [
-      "1 shared planner",
-      "Up to 10 goals",
-      "Basic CPF calculations",
-      "Monthly budget view",
+      { text: "1 Shared Dashboard", included: true },
+      { text: "Basic Expense Automations", included: true },
+      { text: "Smart CPF Projections", included: false },
     ],
-    cta: "Get started",
+    cta: "Launch App",
     ctaHref: "/login",
   },
   {
-    name: "Pro",
+    name: "The Goal Chasers",
     price: "$4.90",
-    period: "month",
-    description: "For serious planners",
+    period: "mo",
+    description: "For couples serious about property and future wealth.",
     features: [
-      "Unlimited planners",
-      "Unlimited goals",
-      "Advanced CPF insights",
-      "Historical tracking",
-      "Export to spreadsheet",
-      "Priority support",
+      { text: "Unlimited Shared Goals", included: true },
+      { text: "Advanced CPF & HDB Simulators", included: true },
+      { text: "Income Gap Optimization", included: true },
+      { text: "Advanced Analytical Tools", included: true },
     ],
     highlighted: true,
     badge: "Most Popular",
-    cta: "Start free trial",
+    cta: "Start 14-Day Free Trial",
     ctaHref: "/login",
   },
   {
-    name: "Family",
+    name: "The Family Legacy",
     price: "$9.90",
-    period: "month",
-    description: "For extended families",
+    period: "mo",
+    description: "Complex assets and multi-gen planning.",
     features: [
-      "Everything in Pro",
-      "Up to 5 shared planners",
-      "Multi-generational planning",
-      "Family dashboard",
-      "Dedicated support",
+      { text: "Multi-gen Accounts", included: true },
+      { text: "Estate Planning Algorithms", included: true },
+      { text: "Premium Tracking", included: true },
     ],
-    cta: "Contact us",
+    cta: "Get Full Suite",
     ctaHref: "/login",
   },
 ];
@@ -188,38 +206,32 @@ interface PricingSectionProps {
 export const PricingSection = ({ tiers: propTiers }: PricingSectionProps) => {
   const tiers = propTiers ?? defaultTiers;
   return (
-    <section id="pricing" className="py-16 lg:py-24 bg-base/50">
-      <div className="mx-auto max-w-6xl px-6 lg:px-8">
+    <section id="pricing" className="py-32 px-8 relative">
+      {/* Background organic shape */}
+      <div className="organic-shape w-[800px] h-[800px] bg-highlight/5 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+
+      <div className="max-w-7xl mx-auto">
         <motion.div
-          className="text-center mb-12 lg:mb-16"
+          className="text-center mb-20"
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="font-heading text-2xl font-bold md:text-3xl text-navy">
-            Simple, transparent pricing
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter text-navy">
+            Choose your <span className="text-highlight">toolkit level</span>
           </h2>
-          <p className="mt-3 text-navy/70 max-w-lg mx-auto">
-            Start free and upgrade as your financial planning needs grow.
+          <p className="text-xl text-gray-500 max-w-xl mx-auto">
+            Powerful software tools for every stage of your relationship
+            journey.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-center">
+        <div className="grid lg:grid-cols-3 gap-8 items-center">
           {tiers.map((tier, index) => (
             <PricingCard key={tier.name} tier={tier} index={index} />
           ))}
         </div>
-
-        <motion.p
-          className="text-center mt-8 text-sm text-navy/50"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-        >
-          All plans include a 14-day free trial. No credit card required.
-        </motion.p>
       </div>
     </section>
   );

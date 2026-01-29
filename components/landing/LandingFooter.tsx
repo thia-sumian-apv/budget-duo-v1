@@ -1,56 +1,49 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Wallet, Globe } from "lucide-react";
 
 export const LandingFooter = () => {
   return (
-    <footer className="border-t border-navy/10">
-      <div className="mx-auto max-w-6xl px-6 py-12 lg:px-8">
-        {/* CTA Row */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between pb-8 border-b border-navy/10">
-          <div>
-            <h3 className="font-heading text-xl font-bold text-navy">
-              Ready to plan smarter?
-            </h3>
-            <p className="mt-1 text-sm text-navy/60">
-              Free to get started. No credit card required.
-            </p>
+    <footer className="py-20 px-8 bg-white border-t border-gray-100">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+        {/* Logo and tagline */}
+        <div className="flex flex-col items-center md:items-start gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-highlight rounded-lg flex items-center justify-center">
+              <Wallet className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-bold text-2xl tracking-tighter text-navy">
+              Budget Duo
+            </span>
           </div>
-          <div className="flex gap-3">
-            <Button
-              asChild
-              className="rounded-full bg-highlight text-white hover:bg-highlight/90"
-            >
-              <Link href="/login">Get started</Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className="rounded-full hover:bg-navy/5"
-            >
-              <Link href="#features">Learn more</Link>
-            </Button>
-          </div>
+          <p className="text-sm text-gray-500 max-w-xs text-center md:text-left">
+            The #1 financial planning platform designed specifically for the
+            Singaporean couple dynamic.
+          </p>
         </div>
 
         {/* Footer links */}
-        <div className="pt-8 flex flex-col items-center justify-between gap-4 sm:flex-row text-sm text-navy/60">
-          <div className="flex items-center gap-2">
-            <span className="font-heading font-bold text-navy">Budget Duo</span>
-            <span>© {new Date().getFullYear()}</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="#" className="hover:text-navy transition-colors">
-              Privacy
-            </Link>
-            <Link href="#" className="hover:text-navy transition-colors">
-              Terms
-            </Link>
-            <Link href="#" className="hover:text-navy transition-colors">
-              Support
-            </Link>
-          </div>
+        <div className="flex gap-12 text-sm font-bold tracking-widest text-gray-400 uppercase">
+          <Link href="#" className="hover:text-highlight transition-colors">
+            Privacy
+          </Link>
+          <Link href="#" className="hover:text-highlight transition-colors">
+            Terms
+          </Link>
+          <Link href="#" className="hover:text-highlight transition-colors">
+            Support
+          </Link>
+        </div>
+
+        {/* Social link */}
+        <div className="flex gap-4">
+          <Link
+            href="#"
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-highlight hover:border-highlight hover:text-white transition-all text-gray-400"
+          >
+            <Globe className="h-5 w-5" />
+          </Link>
         </div>
       </div>
     </footer>

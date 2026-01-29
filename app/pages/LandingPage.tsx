@@ -3,24 +3,22 @@
 import {
   LandingNav,
   HeroSection,
-  FeaturesSection,
-  HowItWorks,
+  PathwayDivider,
+  FAQFeaturesSection,
   PricingSection,
+  CTASection,
   LandingFooter,
 } from "@/components/landing";
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-base text-navy">
+    <div className="min-h-screen bg-background-light text-navy app-texture">
       <LandingNav />
       <HeroSection />
-      <FeaturesSection />
-      <div id="how-it-works" className="border-t border-navy/5">
-        <HowItWorks />
-      </div>
-      <section className="border-t border-navy/5">
-        <PricingSection />
-      </section>
+      <PathwayDivider />
+      <FAQFeaturesSection />
+      <PricingSection />
+      <CTASection />
       <LandingFooter />
     </div>
   );
