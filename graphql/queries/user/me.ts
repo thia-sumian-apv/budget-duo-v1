@@ -8,7 +8,10 @@ const me: GqlQueryResolvers["me"] = async (_, __, { session }) => {
   }
 
   const { users } = await getUserCollections();
-  return users.findOne({ _id: new ObjectId(session.user.id) });
+  return users.findOne(
+    { _id: new ObjectId(session.user.id) },
+    { projection: { password: 0 } }
+  );
 };
 
 export default me;

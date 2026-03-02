@@ -1,11 +1,67 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
-import { Github, Sparkles } from "lucide-react";
+import { Github, Sparkles, Mail, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 const AuthPage = () => {
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified") === "1";
+  const errorParam = searchParams.get("error");
+
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleCredentialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    if (isSignUp) {
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, name: name || undefined }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "Registration failed");
+        } else {
+          setMessage("Check your email for a verification link.");
+          setIsSignUp(false);
+        }
+      } catch {
+        setError("Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+      setLoading(false);
+      if (result?.error === "EMAIL_NOT_VERIFIED") {
+        setError("Please verify your email before signing in.");
+      } else if (result?.error) {
+        setError("Invalid email or password");
+      } else if (result?.ok) {
+        window.location.href = "/";
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base text-navy">
       <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 lg:px-8">
@@ -18,14 +74,95 @@ const AuthPage = () => {
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-navy/10 bg-white/70 px-3 py-1 text-xs text-navy/70">
               <Sparkles className="h-3.5 w-3.5 text-highlight" />
-              <span>Welcome back</span>
+              <span>{isSignUp ? "Get started" : "Welcome back"}</span>
             </div>
             <h1 className="mt-4 text-2xl font-heading font-semibold tracking-tight text-navy">
-              Sign in to Budget Duo
+              {isSignUp ? "Create an account" : "Sign in to Budget Duo"}
             </h1>
             <p className="mt-2 text-sm text-navy/70">
-              Choose a provider to continue.
+              {isSignUp
+                ? "Sign up with your email to get started."
+                : "Choose a provider to continue."}
             </p>
+          </div>
+
+          {verified && (
+            <div className="mb-4 rounded-md bg-green-50 border border-green-200 p-3 text-sm text-green-700 text-center">
+              Email verified! You can now sign in.
+            </div>
+          )}
+
+          {message && (
+            <div className="mb-4 rounded-md bg-blue-50 border border-blue-200 p-3 text-sm text-blue-700 text-center">
+              {message}
+            </div>
+          )}
+
+          {(error || errorParam) && (
+            <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700 text-center">
+              {error ?? errorParam}
+            </div>
+          )}
+
+          <form onSubmit={handleCredentialSubmit} className="space-y-3">
+            {isSignUp && (
+              <input
+                type="text"
+                placeholder="Name (optional)"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full rounded-md border border-navy/20 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:ring-2 focus:ring-navy/30"
+              />
+            )}
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-navy/20 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:ring-2 focus:ring-navy/30"
+            />
+            <input
+              type="password"
+              placeholder={isSignUp ? "Password (min 8 chars)" : "Password"}
+              required
+              minLength={isSignUp ? 8 : undefined}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-md border border-navy/20 bg-white px-3 py-2 text-sm text-navy placeholder:text-navy/40 focus:outline-none focus:ring-2 focus:ring-navy/30"
+            />
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full justify-center rounded-md bg-navy text-white hover:bg-navy/90"
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Mail className="mr-2 h-4 w-4" />
+              )}
+              {isSignUp ? "Sign up" : "Sign in with Email"}
+            </Button>
+          </form>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError(null);
+              setMessage(null);
+            }}
+            className="mt-2 w-full text-center text-xs text-navy/60 hover:text-navy/80"
+          >
+            {isSignUp
+              ? "Already have an account? Sign in"
+              : "Don\u2019t have an account? Sign up"}
+          </button>
+
+          <div className="my-4 flex items-center gap-3">
+            <div className="h-px flex-1 bg-navy/10" />
+            <span className="text-xs text-navy/40">or</span>
+            <div className="h-px flex-1 bg-navy/10" />
           </div>
 
           <div className="space-y-3">
