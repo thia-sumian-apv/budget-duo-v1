@@ -44,3 +44,6 @@ next-env.d.ts
 # generated GraphQL client files (do not commit)
 app/**/*.api.ts
 app/apolloClient.types.ts
+
+# docker overrides (developer-specific port mappings)
+docker-compose.override.yml

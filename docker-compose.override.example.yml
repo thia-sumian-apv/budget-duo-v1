@@ -1,0 +1,13 @@
+# Copy this file to docker-compose.override.yml if default ports clash with other projects.
+# Docker Compose auto-merges docker-compose.override.yml with docker-compose.yml.
+# Change the left side of the port mapping to any free port.
+
+services:
+  mongo:
+    ports:
+      - "27018:27017"
+
+  mailpit:
+    ports:
+      - "9025:8025"   # Web UI
+      - "2025:1025"   # SMTP
