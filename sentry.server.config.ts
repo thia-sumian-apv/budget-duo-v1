@@ -10,5 +10,5 @@ Sentry.init({
   // Only send errors in production, or if DSN is explicitly set in dev
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
 
-  environment: process.env.NODE_ENV,
+  environment: process.env.NEXT_PUBLIC_APP_ENV || process.env.NODE_ENV,
 });
