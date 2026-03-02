@@ -34,7 +34,10 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "services:up": "docker compose up -d",
+    "services:down": "docker compose down",
+    "services:logs": "docker compose logs -f"
   },
   "dependencies": {
     "@apollo/client": "^3.14.0",

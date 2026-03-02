@@ -1,0 +1,27 @@
+# Development services only — run the app locally with `npm run dev`
+#
+# Port mappings are NOT set here to avoid clashes across projects.
+# Copy docker-compose.override.example.yml → docker-compose.override.yml
+# and set your preferred host ports there.
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
