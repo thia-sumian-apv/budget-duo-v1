@@ -4,7 +4,10 @@ import type { GqlQueryResolvers } from "@/graphql/__generated__/types";
 
 const getUser: GqlQueryResolvers["getUser"] = async (_, { id }) => {
   const { users } = await getUserCollections();
-  const userResult = await users.findOne({ _id: new ObjectId(id) });
+  const userResult = await users.findOne(
+    { _id: new ObjectId(id) },
+    { projection: { password: 0 } }
+  );
 
   if (!userResult) {
     return null;

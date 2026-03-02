@@ -29,7 +29,8 @@ const createUser: GqlMutationResolvers["createUser"] = async (_, { input }) => {
   };
 
   await users.insertOne(doc);
-  return { __typename: "CreateUserSuccessfulResponse", user: doc };
+  const { password: _pw, ...safeDoc } = doc as any;
+  return { __typename: "CreateUserSuccessfulResponse", user: safeDoc };
 };
 
 export default createUser;

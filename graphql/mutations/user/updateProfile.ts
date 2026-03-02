@@ -34,7 +34,8 @@ const updateProfile: GqlMutationResolvers["updateProfile"] = async (
     };
   }
 
-  return { __typename: "UpdateProfileSuccessfulResponse", user: userResult };
+  const { password: _pw, ...safeUser } = userResult as any;
+  return { __typename: "UpdateProfileSuccessfulResponse", user: safeUser };
 };
 
 export default updateProfile;

@@ -13,6 +13,10 @@ export interface UserDocument {
   role: Role;
   provider?: string | null;
   providerAccountId?: string | null;
+  password?: string | null;
+  emailVerified?: Date | null;
+  emailVerifyToken?: string | null;
+  emailVerifyExpires?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   displayName?: string | null;

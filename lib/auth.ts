@@ -3,6 +3,8 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { compare } from "bcryptjs";
 import { Role } from "@/types/users/user";
 import { ObjectId } from "mongodb";
 import getUserCollections from "@/db/users/getCollections";
@@ -19,7 +21,38 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const { users } = await getUserCollections();
+        const user = await users.findOne({ email: credentials.email });
+        if (!user || !user.password) return null;
+
+        const valid = await compare(credentials.password, user.password);
+        if (!valid) return null;
+
+        if (!user.emailVerified) {
+          throw new Error("EMAIL_NOT_VERIFIED");
+        }
+
+        return {
+          id: user._id.toHexString(),
+          email: user.email,
+          name: user.name ?? null,
+          image: user.image ?? null,
+        };
+      },
+    }),
   ],
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
     async session({ session, token }) {
       if (session.user && token?.sub) {
