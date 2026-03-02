@@ -5,6 +5,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import schema from "@/graphql/schema";
+import * as Sentry from "@sentry/nextjs";
 
 // Ensure Vercel/Next treats this as a server (not statically optimized) route.
 // This is required for GraphQL POST requests and session-based auth.
@@ -18,6 +19,16 @@ const server = new ApolloServer({
     process.env.NODE_ENV !== "production"
       ? [ApolloServerPluginLandingPageLocalDefault()]
       : [],
+  formatError: (formattedError, error) => {
+    Sentry.captureException(error, {
+      tags: { component: "graphql" },
+      extra: {
+        path: formattedError.path,
+        extensions: formattedError.extensions,
+      },
+    });
+    return formattedError;
+  },
 });
 
 const handler = startServerAndCreateNextHandler<Request>(
