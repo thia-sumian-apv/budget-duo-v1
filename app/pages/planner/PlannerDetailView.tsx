@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useGetPlannerQuery } from "./Planner.api";
 import { useCurrentUser } from "@/app/hooks/useCurrentUser";
 import { TabNavigation, type PlannerTab } from "./components/TabNavigation";
@@ -34,6 +34,15 @@ const PlannerDetailView = ({
   const planner = data?.getPlanner;
   const setupStatus = usePlannerSetup(planner?.members ?? [], userId);
 
+  // Latch: once wizard is needed, keep it open until onComplete is called.
+  // Without this, the updateMemberData mutation updates the Apollo cache which
+  // flips needsSetup to false mid-wizard, dismissing it prematurely.
+  const wizardRequiredRef = useRef(false);
+  const [wizardDismissed, setWizardDismissed] = useState(false);
+  if (setupStatus.needsSetup) {
+    wizardRequiredRef.current = true;
+  }
+
   if (loading && !data) {
     return (
       <div className="p-5 text-sm text-navy/70">Loading planner...</div>
@@ -48,20 +57,23 @@ const PlannerDetailView = ({
     );
   }
 
-  // Show setup wizard if user hasn't completed setup
-  if (setupStatus.needsSetup) {
+  if (wizardRequiredRef.current && !wizardDismissed) {
     return (
       <SetupWizard
         plannerId={plannerId}
+        plannerCode={planner.code}
         members={planner.members}
         currentUserId={userId}
-        onComplete={() => refetch()}
+        onComplete={() => {
+          setWizardDismissed(true);
+          refetch();
+        }}
       />
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="dashboard-card min-h-[600px] flex flex-col h-full">
       {/* Header with planner name */}
       <div className="px-5 pt-4 pb-2">
         <h1 className="font-heading text-xl font-bold text-navy">

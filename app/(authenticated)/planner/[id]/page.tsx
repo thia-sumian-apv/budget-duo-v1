@@ -15,9 +15,5 @@ export default function PlannerPage() {
     );
   }
 
-  return (
-    <div className="dashboard-card min-h-[600px]">
-      <PlannerDetailView plannerId={plannerId} />
-    </div>
-  );
+  return <PlannerDetailView plannerId={plannerId} />;
 }
