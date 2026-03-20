@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 import type { GqlMutationResolvers } from "@/graphql/__generated__/types";
 
 const createUser: GqlMutationResolvers["createUser"] = async (_, { input }) => {
-  const { email, name, image, role } = input;
+  const { email, name, image } = input;
   const { users } = await getUserCollections();
   const existing = await users.findOne({ email });
 

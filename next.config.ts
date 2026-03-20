@@ -19,6 +19,16 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  experimental: {
+    turbo: {
+      rules: {
+        "*.graphql": {
+          loaders: ["graphql-tag/loader"],
+          as: "*.js",
+        },
+      },
+    },
+  },
 };
 
 export default withSentryConfig(nextConfig, {
