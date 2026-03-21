@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { MemberIncomeCard } from "../components/MemberIncomeCard";
-import { ContributionSplitSection } from "../components/ContributionSplitSection";
+import { Info } from "lucide-react";
+import { toast } from "sonner";
+import { ContributionSplitSection } from "../components/contributionSplit";
 import {
   useUpdateMemberDataMutation,
   useUpdateRatioSettingsMutation,
 } from "../Planner.api";
 import type { GetPlannerQuery } from "../Planner.api";
 import { RatioMode } from "@/app/apolloClient.types";
+import { splitMembers } from "@/lib/utils/member";
+import { MemberIncomeCard } from "../components/memberIncomeCard";
 
 type Planner = NonNullable<GetPlannerQuery["getPlanner"]>;
 
@@ -33,8 +36,7 @@ export const IncomeTab = ({
   const [updateRatioSettings, { loading: updatingRatio }] =
     useUpdateRatioSettingsMutation();
 
-  const currentMember = members.find((m) => m.user.id === currentUserId);
-  const partnerMember = members.find((m) => m.user.id !== currentUserId);
+  const { currentMember, partnerMember } = splitMembers(members, currentUserId);
 
   const handleSaveMemberEdit = async (data: {
     displayName?: string;
@@ -43,14 +45,12 @@ export const IncomeTab = ({
   }) => {
     try {
       await updateMemberData({
-        variables: {
-          plannerId,
-          input: data,
-        },
+        variables: { plannerId, input: data },
       });
+      toast.success("Income profile updated");
       onUpdate();
-    } catch (err) {
-      console.error("Failed to update:", err);
+    } catch {
+      toast.error("Failed to update income profile. Please try again.");
     }
   };
 
@@ -63,15 +63,16 @@ export const IncomeTab = ({
             input: { ratioMode: RatioMode.IncomeBased },
           },
         });
+        toast.success("Contribution split updated to income-based");
         onUpdate();
-      } catch (err) {
-        console.error("Failed to update ratio:", err);
+      } catch {
+        toast.error("Failed to update contribution split. Please try again.");
       }
     }
   };
 
   const handleSaveCustomRatio = async (
-    ratios: { userId: string; percentage: number }[]
+    ratios: { userId: string; percentage: number }[],
   ) => {
     try {
       await updateRatioSettings({
@@ -83,63 +84,78 @@ export const IncomeTab = ({
           },
         },
       });
+      toast.success("Custom contribution ratio saved");
       onUpdate();
-    } catch (err) {
-      console.error("Failed to update ratio:", err);
+    } catch {
+      toast.error("Failed to save custom ratio. Please try again.");
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Member Cards */}
-      <div className="space-y-4">
-        <h3 className="font-heading font-semibold text-navy">Income Profiles</h3>
-        {currentMember && (
-          <MemberIncomeCard
-            member={currentMember}
-            isCurrentUser
-            isExpanded={expandedMember === currentMember.user.id}
-            onToggleExpand={() =>
-              setExpandedMember(
-                expandedMember === currentMember.user.id
-                  ? null
-                  : currentMember.user.id
-              )
-            }
-            onSaveEdit={handleSaveMemberEdit}
-            isSaving={updatingMember}
-          />
-        )}
-        {partnerMember && (
-          <MemberIncomeCard
-            member={partnerMember}
-            isCurrentUser={false}
-            isExpanded={expandedMember === partnerMember.user.id}
-            onToggleExpand={() =>
-              setExpandedMember(
-                expandedMember === partnerMember.user.id
-                  ? null
-                  : partnerMember.user.id
-              )
-            }
-            onSaveEdit={handleSaveMemberEdit}
-            isSaving={updatingMember}
-          />
-        )}
+      {/* CPF Info Banner */}
+      <div className="bg-highlight/15 border border-highlight/30 p-4 rounded-2xl flex items-start gap-3">
+        <Info className="h-5 w-5 text-highlight shrink-0 mt-0.5" />
+        <p className="text-sm text-navy/80 leading-relaxed">
+          CPF contributions are auto-calculated based on the latest 2024 MOM
+          contribution rates. Your take-home amount includes mandatory employee
+          deductions.
+        </p>
       </div>
 
-      {/* Contribution Ratio Section */}
-      {members.length > 1 && (
-        <ContributionSplitSection
-          members={members}
-          currentUserId={currentUserId}
-          ratioMode={ratioMode}
-          customRatios={customRatios}
-          onRatioModeChange={handleRatioModeChange}
-          onSaveCustomRatio={handleSaveCustomRatio}
-          isSaving={updatingRatio}
-        />
-      )}
+      {/* Two-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left column — Member income cards */}
+        <div className="lg:col-span-7 space-y-4">
+          {currentMember && (
+            <MemberIncomeCard
+              member={currentMember}
+              isCurrentUser
+              isExpanded={expandedMember === currentMember.user.id}
+              onToggleExpand={() =>
+                setExpandedMember(
+                  expandedMember === currentMember.user.id
+                    ? null
+                    : currentMember.user.id,
+                )
+              }
+              onSaveEdit={handleSaveMemberEdit}
+              isSaving={updatingMember}
+            />
+          )}
+          {partnerMember && (
+            <MemberIncomeCard
+              member={partnerMember}
+              isCurrentUser={false}
+              isExpanded={expandedMember === partnerMember.user.id}
+              onToggleExpand={() =>
+                setExpandedMember(
+                  expandedMember === partnerMember.user.id
+                    ? null
+                    : partnerMember.user.id,
+                )
+              }
+              onSaveEdit={handleSaveMemberEdit}
+              isSaving={updatingMember}
+            />
+          )}
+        </div>
+
+        {/* Right column — Contribution split */}
+        {members.length > 1 && (
+          <div className="lg:col-span-5">
+            <ContributionSplitSection
+              members={members}
+              currentUserId={currentUserId}
+              ratioMode={ratioMode}
+              customRatios={customRatios}
+              onRatioModeChange={handleRatioModeChange}
+              onSaveCustomRatio={handleSaveCustomRatio}
+              isSaving={updatingRatio}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

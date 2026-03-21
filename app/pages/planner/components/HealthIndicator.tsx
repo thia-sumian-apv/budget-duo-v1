@@ -1,9 +1,62 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { formatCurrency } from "@/lib/utils/budget";
+import { TrendingUp, TrendingDown, Minus, Wallet, type LucideIcon } from "lucide-react";
+
+// --- Status types & config ---
 
 export type BudgetHealthStatus = "healthy" | "warning" | "danger";
+
+interface StatusConfig {
+  label: string;
+  Icon: LucideIcon;
+  badge: string;
+  card: string;
+  amount: string;
+  footer: string;
+}
+
+const STATUS_CONFIG: Record<BudgetHealthStatus, StatusConfig> = {
+  healthy: {
+    label: "Healthy",
+    Icon: TrendingUp,
+    badge: "bg-[#1a3a5a] text-cyan-300",
+    card: "bg-navy p-8 md:p-10 shadow-sm group text-white",
+    amount: "text-highlight text-5xl md:text-7xl",
+    footer: "text-white/60 border-white/10",
+  },
+  warning: {
+    label: "Tight",
+    Icon: Minus,
+    badge: "text-amber-600 bg-amber-50",
+    card: "bg-white p-8 md:p-10 shadow-sm border border-amber-200",
+    amount: "text-amber-700 text-4xl",
+    footer: "text-navy/50 border-navy/10",
+  },
+  danger: {
+    label: "Over Budget",
+    Icon: TrendingDown,
+    badge: "text-red-600 bg-red-50",
+    card: "bg-white p-8 md:p-10 shadow-sm border border-red-200",
+    amount: "text-red-700 text-4xl",
+    footer: "text-navy/50 border-navy/10",
+  },
+};
+
+// --- Utility ---
+
+export function getBudgetHealthStatus(
+  remainingAmount: number,
+  totalIncome: number,
+): BudgetHealthStatus {
+  if (remainingAmount < 0) return "danger";
+  const pct = totalIncome > 0 ? (remainingAmount / totalIncome) * 100 : 0;
+  if (pct < 10) return "warning";
+  return "healthy";
+}
+
+// --- Small badge ---
 
 interface HealthIndicatorProps {
   remainingAmount: number;
@@ -16,44 +69,26 @@ export const HealthIndicator = ({
   totalIncome,
   className,
 }: HealthIndicatorProps) => {
-  // Calculate health status based on remaining percentage
-  const remainingPercentage =
-    totalIncome > 0 ? (remainingAmount / totalIncome) * 100 : 0;
-
-  let statusText: string;
-  let statusColor: string;
-  let Icon: typeof TrendingUp;
-
-  if (remainingAmount < 0) {
-    statusText = "Over Budget";
-    statusColor = "text-red-600 bg-red-50";
-    Icon = TrendingDown;
-  } else if (remainingPercentage < 10) {
-    statusText = "Tight";
-    statusColor = "text-amber-600 bg-amber-50";
-    Icon = Minus;
-  } else {
-    statusText = "Healthy";
-    statusColor = "text-green-600 bg-green-50";
-    Icon = TrendingUp;
-  }
+  const status = getBudgetHealthStatus(remainingAmount, totalIncome);
+  const { label, Icon, badge } = STATUS_CONFIG[status];
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div
         className={cn(
           "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium",
-          statusColor
+          badge,
         )}
       >
         <Icon className="h-3.5 w-3.5" />
-        {statusText}
+        {label}
       </div>
     </div>
   );
 };
 
-// Larger card variant for dashboard
+// --- Hero card ---
+
 interface HealthSummaryCardProps {
   remainingAmount: number;
   totalIncome: number;
@@ -68,59 +103,56 @@ export const HealthSummaryCard = ({
   const remainingPercentage =
     totalIncome > 0 ? (remainingAmount / totalIncome) * 100 : 0;
 
-  let status: BudgetHealthStatus;
-  let bgGradient: string;
-
-  if (remainingAmount < 0) {
-    status = "danger";
-    bgGradient = "from-red-50 to-red-100/50";
-  } else if (remainingPercentage < 10) {
-    status = "warning";
-    bgGradient = "from-amber-50 to-amber-100/50";
-  } else {
-    status = "healthy";
-    bgGradient = "from-green-50 to-green-100/50";
-  }
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-SG", {
-      style: "currency",
-      currency: "SGD",
-      maximumFractionDigits: 0,
-    }).format(amount);
+  const status = getBudgetHealthStatus(remainingAmount, totalIncome);
+  const config = STATUS_CONFIG[status];
+  const isHealthy = status === "healthy";
 
   return (
     <div
-      className={cn(
-        "rounded-xl p-5 bg-gradient-to-br border",
-        bgGradient,
-        status === "danger" && "border-red-200",
-        status === "warning" && "border-amber-200",
-        status === "healthy" && "border-green-200",
-        className
-      )}
+      className={cn("rounded-xl relative overflow-hidden", config.card, className)}
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-navy/60">Monthly Remaining</p>
-          <p
+      {/* Decorative watermark — always visible, faded on non-healthy */}
+      <div
+        className={cn(
+          "absolute top-0 right-0 p-6 transition-transform group-hover:scale-110",
+          isHealthy ? "opacity-10" : "opacity-5",
+        )}
+      >
+        <Wallet className="h-28 w-28" />
+      </div>
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-3 mb-4">
+          <h3
             className={cn(
-              "text-2xl font-heading font-bold mt-1",
-              status === "danger" && "text-red-700",
-              status === "warning" && "text-amber-700",
-              status === "healthy" && "text-green-700"
+              "font-heading font-bold uppercase tracking-wider text-sm",
+              isHealthy ? "text-white/70" : "text-navy/60",
             )}
           >
-            {formatCurrency(remainingAmount)}
-          </p>
+            MONTHLY REMAINING
+          </h3>
+          <HealthIndicator
+            remainingAmount={remainingAmount}
+            totalIncome={totalIncome}
+          />
         </div>
-        <HealthIndicator
-          remainingAmount={remainingAmount}
-          totalIncome={totalIncome}
-        />
-      </div>
-      <div className="mt-3 text-xs text-navy/50">
-        {remainingPercentage.toFixed(0)}% of combined take-home
+
+        <div className="flex items-baseline gap-2 mb-6">
+          <span
+            className={cn("font-black font-heading tracking-tight", config.amount)}
+          >
+            {formatCurrency(remainingAmount)}
+          </span>
+        </div>
+
+        <p
+          className={cn(
+            "font-medium text-sm border-t pt-4 inline-block",
+            config.footer,
+          )}
+        >
+          {remainingPercentage.toFixed(0)}% of combined take-home
+        </p>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import "./globals.css";
 import { ubuntu, openSans } from "./fonts";
 import ApolloClientProvider from "@/app/ApolloClientProvider";
 import NextAuthProvider from "@/app/NextAuthProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Budget Duo",
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body>
         <NextAuthProvider>
           <ApolloClientProvider>{children}</ApolloClientProvider>
+          <Toaster richColors position="top-right" />
         </NextAuthProvider>
       </body>
     </html>
