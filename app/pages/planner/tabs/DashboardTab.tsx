@@ -1,48 +1,35 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plus, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { HealthSummaryCard } from "../components/HealthIndicator";
-import { FlowTypeBreakdown } from "../components/FlowTypeBreakdown";
 import { MemberSummaryCard } from "../components/MemberSummaryCard";
 import { useBudgetSummary } from "../hooks/useBudgetSummary";
+import { GoalCount } from "../components/GoalCount";
+import { getMemberName, getInitial } from "@/lib/utils/member";
 import type { GetPlannerQuery } from "../Planner.api";
+import { FlowTypeBreakdown } from "../components/flowTypeBreakdown/FlowTypeBreakdown";
 
 type Planner = NonNullable<GetPlannerQuery["getPlanner"]>;
 
 interface DashboardTabProps {
   planner: Planner;
   currentUserId: string | null;
-  onNavigateToGoals: () => void;
-  onNavigateToIncome: () => void;
 }
 
-export const DashboardTab = ({
-  planner,
-  currentUserId,
-  onNavigateToGoals,
-  onNavigateToIncome,
-}: DashboardTabProps) => {
+export const DashboardTab = ({ planner, currentUserId }: DashboardTabProps) => {
   const summary = useBudgetSummary({ planner, currentUserId });
 
-  const currentName =
-    summary.currentMember?.displayName ||
-    summary.currentMember?.user.name ||
-    "You";
-  const currentInitial = currentName[0] || "Y";
+  const currentName = getMemberName(summary.currentMember, "You");
+  const currentInitial = getInitial(currentName, "Y");
 
-  const partnerName =
-    summary.partnerMember?.displayName ||
-    summary.partnerMember?.user.name ||
-    "Partner";
-  const partnerInitial = partnerName[0] || "P";
+  const partnerName = getMemberName(summary.partnerMember, "Partner");
+  const partnerInitial = getInitial(partnerName, "P");
 
   return (
     <div className="space-y-6">
-      {/* Health Summary */}
+      {/* Hero Card — full width */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
@@ -52,73 +39,56 @@ export const DashboardTab = ({
         />
       </motion.div>
 
-      {/* Flow Type Breakdown */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <FlowTypeBreakdown
-          flowTypeTotals={summary.flowTypeTotals}
-          goalsByFlowType={summary.goalsByFlowType}
-          combinedTakeHome={summary.combinedTakeHome}
-          currentUserId={currentUserId}
-          partnerName={partnerName}
-        />
-      </motion.div>
-
-      {/* Member Summary Cards */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-      >
-        <MemberSummaryCard
-          name={currentName}
-          initial={currentInitial}
-          remaining={summary.currentRemaining}
-          isCurrentUser
-        />
-        {summary.partnerMember && (
-          <MemberSummaryCard
-            name={partnerName}
-            initial={partnerInitial}
-            remaining={summary.partnerRemaining}
+      {/* Bento Grid: Flow Breakdown (7/12) + Member Cards (5/12) */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Flow Type Breakdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="md:col-span-7"
+        >
+          <FlowTypeBreakdown
+            flowTypeTotals={summary.flowTypeTotals}
+            currentFlowTypeTotals={summary.currentFlowTypeTotals}
+            partnerFlowTypeTotals={summary.partnerFlowTypeTotals}
+            goalsByFlowType={summary.goalsByFlowType}
+            combinedTakeHome={summary.combinedTakeHome}
+            currentTakeHome={summary.currentTakeHome}
+            partnerTakeHome={summary.partnerTakeHome}
+            currentUserId={currentUserId}
+            currentName={currentName}
+            partnerName={partnerName}
+            hasPartner={!!summary.partnerMember}
           />
-        )}
-      </motion.div>
+        </motion.div>
 
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
-        className="flex flex-wrap gap-3"
-      >
-        <Button
-          onClick={onNavigateToGoals}
-          className="rounded-full bg-highlight hover:bg-highlight/90"
+        {/* Member Summary Cards — stacked in right column */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="md:col-span-5 space-y-4"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Goal
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={onNavigateToIncome}
-          className="rounded-full hover:bg-navy/5"
-        >
-          Adjust Contributions
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </motion.div>
+          <MemberSummaryCard
+            name={currentName}
+            initial={currentInitial}
+            remaining={summary.currentRemaining}
+            isCurrentUser
+            contributionPercent={summary.currentRatio * 100}
+          />
+          {summary.partnerMember && (
+            <MemberSummaryCard
+              name={partnerName}
+              initial={partnerInitial}
+              remaining={summary.partnerRemaining}
+              contributionPercent={summary.partnerRatio * 100}
+            />
+          )}
+        </motion.div>
+      </div>
 
-      {/* Goals count */}
-      {summary.goalCount > 0 && (
-        <p className="text-xs text-navy/50">
-          {summary.goalCount} goal{summary.goalCount !== 1 ? "s" : ""} tracked
-        </p>
-      )}
+      <GoalCount total={summary.goalCount} />
     </div>
   );
 };

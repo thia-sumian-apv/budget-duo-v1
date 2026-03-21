@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { useGetPlannerQuery } from "./Planner.api";
 import { useCurrentUser } from "@/app/hooks/useCurrentUser";
-import { TabNavigation, type PlannerTab } from "./components/TabNavigation";
+import { PlannerPillTabs, type PlannerTab } from "./components/PlannerPillTabs";
+import { PageHeader } from "@/components/dashboard/layout/PageHeader";
 import { usePlannerSetup } from "./hooks/usePlannerSetup";
 import { SetupWizard } from "./wizard/SetupWizard";
 import { DashboardTab } from "./tabs/DashboardTab";
@@ -37,16 +38,15 @@ const PlannerDetailView = ({
   // Latch: once wizard is needed, keep it open until onComplete is called.
   // Without this, the updateMemberData mutation updates the Apollo cache which
   // flips needsSetup to false mid-wizard, dismissing it prematurely.
+  // Only latch AFTER data has loaded to avoid false positives from empty members array.
   const wizardRequiredRef = useRef(false);
   const [wizardDismissed, setWizardDismissed] = useState(false);
-  if (setupStatus.needsSetup) {
+  if (planner && userId && setupStatus.needsSetup) {
     wizardRequiredRef.current = true;
   }
 
   if (loading && !data) {
-    return (
-      <div className="p-5 text-sm text-navy/70">Loading planner...</div>
-    );
+    return <div className="p-5 text-sm text-navy/70">Loading planner...</div>;
   }
 
   if (error || !planner) {
@@ -73,30 +73,17 @@ const PlannerDetailView = ({
   }
 
   return (
-    <div className="dashboard-card min-h-[600px] flex flex-col h-full">
-      {/* Header with planner name */}
-      <div className="px-5 pt-4 pb-2">
-        <h1 className="font-heading text-xl font-bold text-navy">
-          {plannerName || planner.name}
-        </h1>
-      </div>
+    <div className="space-y-5">
+      {/* Page Header — on grey background */}
+      <PageHeader title={plannerName || planner.name} />
 
-      {/* Tab Navigation */}
-      <TabNavigation
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        className="px-5"
-      />
+      {/* Pill Tab Navigation — on grey background */}
+      <PlannerPillTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Tab Content */}
-      <div className="flex-1 overflow-auto p-5">
+      {/* Tab Content — cards render directly on grey background */}
+      <div>
         {activeTab === "dashboard" && (
-          <DashboardTab
-            planner={planner}
-            currentUserId={userId}
-            onNavigateToGoals={() => setActiveTab("goals")}
-            onNavigateToIncome={() => setActiveTab("income")}
-          />
+          <DashboardTab planner={planner} currentUserId={userId} />
         )}
         {activeTab === "income" && (
           <IncomeTab

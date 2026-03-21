@@ -1,7 +1,23 @@
 "use client";
 
+import { PillSelect, type PillOption } from "./PillSelect";
+
 type OwnerFilter = "all" | "mine" | "partner" | "shared";
 type FlowFilter = "all" | "EXPENSE" | "SAVINGS" | "INVESTMENT";
+
+const OWNER_OPTIONS: PillOption<OwnerFilter>[] = [
+  { value: "all", label: "All" },
+  { value: "mine", label: "Mine" },
+  { value: "partner", label: "Partner" },
+  { value: "shared", label: "Shared" },
+];
+
+const FLOW_OPTIONS: PillOption<FlowFilter>[] = [
+  { value: "all", label: "All" },
+  { value: "EXPENSE", label: "Expense" },
+  { value: "SAVINGS", label: "Savings" },
+  { value: "INVESTMENT", label: "Investment" },
+];
 
 interface GoalFiltersProps {
   ownerFilter: OwnerFilter;
@@ -17,48 +33,28 @@ export const GoalFilters = ({
   onFlowFilterChange,
 }: GoalFiltersProps) => {
   return (
-    <div className="flex flex-wrap gap-2">
-      {/* Owner filters */}
-      <div className="flex gap-1 p-1 bg-navy/5 rounded-lg">
-        {(["all", "mine", "partner", "shared"] as OwnerFilter[]).map(
-          (filter) => (
-            <button
-              key={filter}
-              onClick={() => onOwnerFilterChange(filter)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                ownerFilter === filter
-                  ? "bg-highlight text-white"
-                  : "text-navy/60 hover:text-navy hover:bg-white/50"
-              }`}
-            >
-              {filter === "all" && "All"}
-              {filter === "mine" && "Mine"}
-              {filter === "partner" && "Partner"}
-              {filter === "shared" && "Shared"}
-            </button>
-          )
-        )}
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <span className="text-xs font-bold uppercase tracking-wider text-navy/40 px-1">
+          Filter by Owner
+        </span>
+        <PillSelect
+          options={OWNER_OPTIONS}
+          value={ownerFilter}
+          onChange={onOwnerFilterChange}
+          variant="filter"
+        />
       </div>
-
-      {/* Flow type filters */}
-      <div className="flex gap-1 p-1 bg-navy/5 rounded-lg">
-        {(["all", "EXPENSE", "SAVINGS", "INVESTMENT"] as FlowFilter[]).map(
-          (filter) => (
-            <button
-              key={filter}
-              onClick={() => onFlowFilterChange(filter)}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                flowFilter === filter
-                  ? "bg-highlight text-white"
-                  : "text-navy/60 hover:text-navy hover:bg-white/50"
-              }`}
-            >
-              {filter === "all"
-                ? "All Types"
-                : filter.charAt(0) + filter.slice(1).toLowerCase()}
-            </button>
-          )
-        )}
+      <div className="flex flex-col gap-3">
+        <span className="text-xs font-bold uppercase tracking-wider text-navy/40 px-1">
+          Filter by Type
+        </span>
+        <PillSelect
+          options={FLOW_OPTIONS}
+          value={flowFilter}
+          onChange={onFlowFilterChange}
+          variant="filter"
+        />
       </div>
     </div>
   );
